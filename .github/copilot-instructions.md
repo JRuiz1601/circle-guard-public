@@ -96,6 +96,26 @@ The other 2 services (`notification-service`, `promotion-service`) are OUT OF SC
 - Do NOT use Kotlin in test files
 - Do NOT modify `notification-service` or `promotion-service`
 - Do NOT use `latest` tag for Docker images in K8s manifests (always use `${BUILD_NUMBER}` or a specific tag)
+- Do NOT run `git add`, `git commit`, or `git push` commands — EVER
+- Do NOT execute any git commands that modify the repository history
+
+## Git & Commits — IMPORTANT
+**You must NEVER commit or push anything.** After completing any task, instead of committing:
+1. List every file you created or modified
+2. Show the suggested git commands for the user to run manually, like this:
+
+```
+# Files changed:
+# - path/to/file1
+# - path/to/file2
+
+# Run these commands to commit:
+git add path/to/file1 path/to/file2
+git commit -m "feat: description of what was done"
+git push origin master
+```
+
+The user will always do the actual commit manually.
 
 ## Jenkinsfile Stage Structure
 
