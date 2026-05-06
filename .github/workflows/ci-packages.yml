@@ -1,0 +1,268 @@
+name: CI - Build & Publish to GHCR
+
+# This workflow validates that GitHub Packages (ghcr.io) is enabled
+# and builds/pushes Docker images for all 6 selected microservices.
+# It is triggered on push to master or manually.
+# NOTE: The main CI/CD is handled by Jenkins. This workflow only
+# activates GHCR permissions and provides a fallback build.
+
+on:
+  workflow_dispatch:  # Manual trigger to activate GHCR
+  push:
+    branches:
+      - master
+    paths:
+      - 'services/**'
+      - '.github/workflows/**'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/jruiz1601
+
+jobs:
+  activate-ghcr:
+    name: Activate GHCR & Validate Permissions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write   # <-- This activates ghcr.io for this repo
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify GHCR access
+        run: |
+          echo "✅ GHCR access verified for user: ${{ github.actor }}"
+          echo "Registry: ${{ env.REGISTRY }}"
+          echo "Image prefix: ${{ env.IMAGE_PREFIX }}"
+          echo "Repo: ${{ github.repository }}"
+
+  build-auth-service:
+    name: Build circleguard-auth-service
+    runs-on: ubuntu-latest
+    needs: activate-ghcr
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
+      - name: Build
+        run: ./gradlew :services:circleguard-auth-service:build -x test
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: services/circleguard-auth-service
+          push: true
+          tags: |
+            ghcr.io/jruiz1601/circleguard-auth-service:latest
+            ghcr.io/jruiz1601/circleguard-auth-service:${{ github.run_number }}
+
+  build-identity-service:
+    name: Build circleguard-identity-service
+    runs-on: ubuntu-latest
+    needs: activate-ghcr
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
+      - name: Build
+        run: ./gradlew :services:circleguard-identity-service:build -x test
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: services/circleguard-identity-service
+          push: true
+          tags: |
+            ghcr.io/jruiz1601/circleguard-identity-service:latest
+            ghcr.io/jruiz1601/circleguard-identity-service:${{ github.run_number }}
+
+  build-gateway-service:
+    name: Build circleguard-gateway-service
+    runs-on: ubuntu-latest
+    needs: activate-ghcr
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
+      - name: Build
+        run: ./gradlew :services:circleguard-gateway-service:build -x test
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: services/circleguard-gateway-service
+          push: true
+          tags: |
+            ghcr.io/jruiz1601/circleguard-gateway-service:latest
+            ghcr.io/jruiz1601/circleguard-gateway-service:${{ github.run_number }}
+
+  build-form-service:
+    name: Build circleguard-form-service
+    runs-on: ubuntu-latest
+    needs: activate-ghcr
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
+      - name: Build
+        run: ./gradlew :services:circleguard-form-service:build -x test
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: services/circleguard-form-service
+          push: true
+          tags: |
+            ghcr.io/jruiz1601/circleguard-form-service:latest
+            ghcr.io/jruiz1601/circleguard-form-service:${{ github.run_number }}
+
+  build-file-service:
+    name: Build circleguard-file-service
+    runs-on: ubuntu-latest
+    needs: activate-ghcr
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
+      - name: Build
+        run: ./gradlew :services:circleguard-file-service:build -x test
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: services/circleguard-file-service
+          push: true
+          tags: |
+            ghcr.io/jruiz1601/circleguard-file-service:latest
+            ghcr.io/jruiz1601/circleguard-file-service:${{ github.run_number }}
+
+  build-dashboard-service:
+    name: Build circleguard-dashboard-service
+    runs-on: ubuntu-latest
+    needs: activate-ghcr
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
+      - name: Build
+        run: ./gradlew :services:circleguard-dashboard-service:build -x test
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: services/circleguard-dashboard-service
+          push: true
+          tags: |
+            ghcr.io/jruiz1601/circleguard-dashboard-service:latest
+            ghcr.io/jruiz1601/circleguard-dashboard-service:${{ github.run_number }}
