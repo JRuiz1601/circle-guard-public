@@ -15,17 +15,12 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh './gradlew :services:${SERVICE_NAME}:build -x test'
+                sh "./gradlew :services/${SERVICE_NAME}:build -x test"
             }
         }
         stage('Unit Tests') {
             steps {
-                sh './gradlew :services:${SERVICE_NAME}:test'
-            }
-            post {
-                always {
-                    junit 'services/${SERVICE_NAME}/build/test-results/test/*.xml'
-                }
+                sh "./gradlew :services/${SERVICE_NAME}:test"
             }
         }
         stage('Docker Build') {
@@ -54,7 +49,7 @@ pipeline {
         }
         success {
             echo "✅ ${SERVICE_NAME} deployed to DEV"
-        }
+        }"services/${SERVICE_NAME}/build/test-results/test/*.xml"
         failure {
             echo "❌ Pipeline failed for ${SERVICE_NAME}"
         }

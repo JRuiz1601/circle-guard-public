@@ -15,17 +15,12 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh './gradlew :services:${SERVICE_NAME}:build -x test'
+                sh "./gradlew :services/${SERVICE_NAME}:build -x test"
             }
         }
         stage('Unit Tests') {
             steps {
-                sh './gradlew :services:${SERVICE_NAME}:test'
-            }
-            post {
-                always {
-                    junit 'services/${SERVICE_NAME}/build/test-results/test/*.xml'
-                }
+                sh "./gradlew :services/${SERVICE_NAME}:test"
             }
         }
         stage('Docker Build') {
@@ -49,7 +44,7 @@ pipeline {
     }
     post {
         always {
-            junit allowEmptyResults: true, testResults: 'services/${SERVICE_NAME}/build/test-results/test/*.xml'
+            junit allowEmptyResults: true, testResults: "services/${SERVICE_NAME}/build/test-results/test/*.xml"
             cleanWs()
         }
         success {
