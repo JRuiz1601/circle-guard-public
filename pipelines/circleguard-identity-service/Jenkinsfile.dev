@@ -1,0 +1,62 @@
+pipeline {
+    agent any
+    environment {
+        SERVICE_NAME = 'circleguard-identity-service'
+        IMAGE = "ghcr.io/jruiz1601/${SERVICE_NAME}:${BUILD_NUMBER}"
+        GITHUB_USER = credentials('GITHUB_USER')
+        GHCR_TOKEN = credentials('GHCR_TOKEN')
+        NAMESPACE = 'circleguard-dev'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Build') {
+            steps {
+                sh './gradlew :services:${SERVICE_NAME}:build -x test'
+            }
+        }
+        stage('Unit Tests') {
+            steps {
+                sh './gradlew :services:${SERVICE_NAME}:test'
+            }
+            post {
+                always {
+                    junit 'services/${SERVICE_NAME}/build/test-results/test/*.xml'
+                }
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                sh "docker build -t ${IMAGE} services/${SERVICE_NAME}/"
+            }
+        }
+        stage('Push to GHCR') {
+            steps {
+                sh """
+                    echo \${GHCR_TOKEN} | docker login ghcr.io -u \${GITHUB_USER} --password-stdin
+                    docker push ${IMAGE}
+                """
+            }
+        }
+        stage('Deploy to Dev') {
+            steps {
+                sh "kubectl apply -f k8s/dev/${SERVICE_NAME}/ --namespace=${NAMESPACE}"
+            }
+        }
+    }
+    post {
+        always {
+            junit allowEmptyResults: true, testResults: 'services/${SERVICE_NAME}/build/test-results/test/*.xml'
+            cleanWs()
+        }
+        success {
+            echo "✅ ${SERVICE_NAME} deployed to DEV"
+        }
+        failure {
+            echo "❌ Pipeline failed for ${SERVICE_NAME}"
+        }
+    }
+}
