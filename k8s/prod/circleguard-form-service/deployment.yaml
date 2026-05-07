@@ -1,0 +1,47 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: circleguard-form-service
+  namespace: circleguard-prod
+  labels:
+    app: circleguard-form-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: circleguard-form-service
+  template:
+    metadata:
+      labels:
+        app: circleguard-form-service
+    spec:
+      containers:
+        - name: circleguard-form-service
+          image: ghcr.io/jruiz1601/circleguard-form-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8083
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 45
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8083
+            initialDelaySeconds: 45
+            periodSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

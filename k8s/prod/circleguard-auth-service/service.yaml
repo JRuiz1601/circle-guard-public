@@ -1,0 +1,12 @@
+﻿apiVersion: v1
+kind: Service
+metadata:
+  name: circleguard-auth-service
+  namespace: circleguard-prod
+spec:
+  type: ClusterIP
+  selector:
+    app: circleguard-auth-service
+  ports:
+    - port: 80
+      targetPort: 8081

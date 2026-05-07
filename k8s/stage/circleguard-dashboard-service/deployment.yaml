@@ -1,0 +1,47 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: circleguard-dashboard-service
+  namespace: circleguard-stage
+  labels:
+    app: circleguard-dashboard-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: circleguard-dashboard-service
+  template:
+    metadata:
+      labels:
+        app: circleguard-dashboard-service
+    spec:
+      containers:
+        - name: circleguard-dashboard-service
+          image: ghcr.io/jruiz1601/circleguard-dashboard-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8085
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "stage"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8085
+            initialDelaySeconds: 45
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8085
+            initialDelaySeconds: 45
+            periodSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

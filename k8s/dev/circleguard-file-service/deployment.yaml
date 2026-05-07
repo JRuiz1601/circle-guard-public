@@ -1,0 +1,47 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: circleguard-file-service
+  namespace: circleguard-dev
+  labels:
+    app: circleguard-file-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: circleguard-file-service
+  template:
+    metadata:
+      labels:
+        app: circleguard-file-service
+    spec:
+      containers:
+        - name: circleguard-file-service
+          image: ghcr.io/jruiz1601/circleguard-file-service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8084
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "dev"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8084
+            initialDelaySeconds: 45
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8084
+            initialDelaySeconds: 45
+            periodSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

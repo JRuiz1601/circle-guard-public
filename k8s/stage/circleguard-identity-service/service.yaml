@@ -1,0 +1,12 @@
+﻿apiVersion: v1
+kind: Service
+metadata:
+  name: circleguard-identity-service
+  namespace: circleguard-stage
+spec:
+  type: ClusterIP
+  selector:
+    app: circleguard-identity-service
+  ports:
+    - port: 80
+      targetPort: 8082
