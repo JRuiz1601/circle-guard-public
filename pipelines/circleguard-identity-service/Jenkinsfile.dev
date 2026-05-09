@@ -44,14 +44,14 @@ pipeline {
     }
     post {
         always {
-            junit allowEmptyResults: true, testResults: "services/${SERVICE_NAME}/build/test-results/test/*.xml"
+            junit allowEmptyResults: true, testResults: "services/circleguard-identity-service/build/test-results/test/*.xml"
             cleanWs()
         }
         success {
-            echo "✅ ${SERVICE_NAME} deployed to DEV"
+            echo "✅ circleguard-identity-service deployed to DEV"
         }
         failure {
-            echo "❌ Pipeline failed for ${SERVICE_NAME}"
+            echo "❌ Pipeline failed for circleguard-identity-service"
         }
     }
 }
