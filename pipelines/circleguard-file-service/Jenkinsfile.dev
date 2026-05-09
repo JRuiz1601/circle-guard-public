@@ -15,12 +15,12 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh "./gradlew :services/${SERVICE_NAME}:build -x test"
+                sh "./gradlew :services:${SERVICE_NAME}:build -x test"
             }
         }
         stage('Unit Tests') {
             steps {
-                sh "./gradlew :services/${SERVICE_NAME}:test"
+                sh "./gradlew :services:${SERVICE_NAME}:test"
             }
         }
         stage('Docker Build') {
