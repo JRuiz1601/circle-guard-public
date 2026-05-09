@@ -1,4 +1,4 @@
-﻿# ---- Stage 1: Build ----
+# ---- Stage 1: Build ----
 FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /workspace
 
@@ -10,7 +10,7 @@ COPY settings.gradle.kts .
 COPY services/circleguard-gateway-service/ services/circleguard-gateway-service/
 
 RUN chmod +x gradlew
-RUN ./gradlew :services: -x test --no-daemon
+RUN ./gradlew :services:circleguard-gateway-service:bootJar -x test --no-daemon
 
 # ---- Stage 2: Runtime ----
 FROM eclipse-temurin:21-jre-alpine
