@@ -16,7 +16,7 @@ RUN ./gradlew :services:circleguard-file-service:bootJar -x test --no-daemon
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-COPY --from=builder /workspace/services/circleguard-file-service/build/libs/*.jar app.jar
+COPY --from=builder /workspace/services/circleguard-file-service/build/libs/*[0-9].jar app.jar
 
 EXPOSE 8084
 
