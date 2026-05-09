@@ -1,4 +1,4 @@
-pipeline {
+﻿pipeline {
     agent any
     environment {
         SERVICE_NAME = 'circleguard-form-service'
@@ -38,7 +38,8 @@ pipeline {
         }
         stage('Deploy to Dev') {
             steps {
-                sh "kubectl apply -f k8s/dev/${SERVICE_NAME}/ --namespace=${NAMESPACE}"
+                sh "sed -i 's/:latest/:\${BUILD_NUMBER}/g' k8s/dev/circleguard-form-service/deployment.yaml"
+                sh "kubectl apply -f k8s/dev/circleguard-form-service/ --namespace=\${NAMESPACE}"
             }
         }
     }
