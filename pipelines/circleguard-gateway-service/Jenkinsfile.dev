@@ -1,4 +1,4 @@
-﻿pipeline {
+pipeline {
     agent any
     environment {
         SERVICE_NAME = 'circleguard-gateway-service'
