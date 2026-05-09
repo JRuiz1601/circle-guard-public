@@ -16,7 +16,7 @@ RUN ./gradlew :services:circleguard-dashboard-service:bootJar -x test --no-daemo
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-COPY --from=builder /workspace/services/circleguard-dashboard-service/build/libs/*[0-9].jar app.jar
+COPY --from=builder /workspace/services/circleguard-dashboard-service/build/libs/circleguard-dashboard-service-1.0.0-SNAPSHOT.jar app.jar
 
 EXPOSE 8085
 

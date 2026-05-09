@@ -16,7 +16,7 @@ RUN ./gradlew :services:circleguard-auth-service:bootJar -x test --no-daemon
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-COPY --from=builder /workspace/services/circleguard-auth-service/build/libs/*[0-9].jar app.jar
+COPY --from=builder /workspace/services/circleguard-auth-service/build/libs/circleguard-auth-service-1.0.0-SNAPSHOT.jar app.jar
 
 EXPOSE 8081
 
