@@ -16,12 +16,12 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh "./gradlew :services:${SERVICE_NAME}:build -x test"
+                sh "./gradlew :services:${SERVICE_NAME}:build -x test --no-daemon"
             }
         }
         stage('Unit Tests') {
             steps {
-                sh "./gradlew :services:${SERVICE_NAME}:test"
+                sh "./gradlew :services:${SERVICE_NAME}:test --no-daemon -Dorg.gradle.jvmargs='-Xmx256m' -Dorg.gradle.daemon=false"
             }
         }
         stage('Docker Build') {
