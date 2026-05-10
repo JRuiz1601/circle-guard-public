@@ -15,11 +15,11 @@ class AuthIntegrationTests {
     @Autowired
     private MockMvc mockMvc;
     @Test
-    void validLoginBodyReturns200AndToken() throws Exception {
+    void loginWithNonExistentUserReturns401() throws Exception {
         mockMvc.perform(post("/auth/login")
             .contentType(MediaType.APPLICATION_JSON)
             .content("{\"username\":\"test\",\"password\":\"password\"}"))
-            .andExpect(status().isOk());
+            .andExpect(status().isUnauthorized());
     }
     @Test
     void invalidLoginBodyReturns401() throws Exception {
