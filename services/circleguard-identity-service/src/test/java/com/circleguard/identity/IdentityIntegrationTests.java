@@ -21,8 +21,8 @@ class IdentityIntegrationTests {
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     @Test
-    void lookupWithoutAuthReturns403() throws Exception {
+    void lookupWithoutAuthReturns401() throws Exception {
         mockMvc.perform(get("/api/v1/identities/lookup/00000000-0000-0000-0000-000000000000"))
-            .andExpect(status().isForbidden());
+            .andExpect(status().isUnauthorized());
     }
 }
