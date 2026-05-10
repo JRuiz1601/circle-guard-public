@@ -6,6 +6,7 @@ pipeline {
         GITHUB_USER = credentials('GITHUB_USER')
         GHCR_TOKEN = credentials('GHCR_TOKEN')
         NAMESPACE = 'circleguard-dev'
+        KUBECONFIG = '/var/jenkins_home/.kube/config'
     }
     stages {
         stage('Checkout') {
@@ -39,7 +40,7 @@ pipeline {
         stage('Deploy to Dev') {
             steps {
                 sh "sed -i 's/:latest/:\${BUILD_NUMBER}/g' k8s/dev/circleguard-auth-service/deployment.yaml"
-                sh "kubectl apply -f k8s/dev/circleguard-auth-service/ --namespace=\${NAMESPACE}"
+                sh "kubectl apply -f k8s/dev/circleguard-auth-service/ --namespace=\${NAMESPACE} --validate=false"
             }
         }
     }
