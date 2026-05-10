@@ -27,18 +27,3 @@ class AttachmentControllerTest {
                 .andExpect(status().isOk());
     }
 }
-
-    @Test
-    void shouldUploadFile() throws Exception {
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "test.pdf",
-                "application/pdf",
-                "test data".getBytes()
-        );
-
-        mockMvc.perform(multipart("/api/v1/attachments").file(file))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.filename").exists());
-    }
-}
