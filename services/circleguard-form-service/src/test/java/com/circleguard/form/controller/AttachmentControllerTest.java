@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,6 +24,9 @@ class AttachmentControllerTest {
     
     @MockBean
     private StorageService storageService;
+
+    @MockBean
+    private KafkaTemplate<String, Object> kafkaTemplate;
 
     @Test
     void shouldUploadFile() throws Exception {
