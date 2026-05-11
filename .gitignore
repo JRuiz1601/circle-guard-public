@@ -46,3 +46,8 @@ web-build/
 *_data/
 pgdata/
 neo4jdata/
+
+# Artefactos kubectl patch / dry-run (no versionar)
+patch.json
+probe-patch.json
+port-patch*.json

@@ -19,7 +19,6 @@ class CircleGuardE2ETest {
 
     @Test
     @Order(1)
-    @Disabled("E2E - requiere servicios corriendo en dev")
     void loginCompletoRetornaToken() {
         authToken = given()
                 .contentType("application/json")
@@ -34,7 +33,6 @@ class CircleGuardE2ETest {
 
     @Test
     @Order(2)
-    @Disabled("E2E - requiere servicios corriendo en dev")
     void crearFormularioConTokenValido() {
         given()
                 .header("Authorization", "Bearer " + authToken)
@@ -48,7 +46,6 @@ class CircleGuardE2ETest {
 
     @Test
     @Order(3)
-    @Disabled("E2E - requiere servicios corriendo en dev")
     void subirArchivoRetornaFilename() {
         given()
                 .header("Authorization", "Bearer " + authToken)
@@ -62,7 +59,6 @@ class CircleGuardE2ETest {
 
     @Test
     @Order(4)
-    @Disabled("E2E - requiere servicios corriendo en dev")
     void consultarDashboardRetornaLista() {
         given()
                 .header("Authorization", "Bearer " + authToken)
@@ -74,7 +70,6 @@ class CircleGuardE2ETest {
 
     @Test
     @Order(5)
-    @Disabled("E2E - requiere servicios corriendo en dev")
     void tokenInvalidoRetorna401() {
         given()
                 .header("Authorization", "Bearer tokenFalso.abc.def")
