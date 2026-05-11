@@ -12,7 +12,10 @@ import com.circleguard.identity.event.IdentityAccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import java.time.Instant;
+import java.util.concurrent.CompletableFuture;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/identities")
 @RequiredArgsConstructor
@@ -78,22 +81,40 @@ public class IdentityVaultController {
     }
 
     private void emitAuditEvent(UUID anonymousId, String user, String status) {
-        IdentityAccessEvent event = IdentityAccessEvent.builder()
-                .eventId(UUID.randomUUID().toString())
-                .eventType("audit.identity.accessed")
-                .timestamp(Instant.now())
-                .source("circleguard-identity-service")
-                .payload(IdentityAccessEvent.IdentityAccessPayload.builder()
-                        .anonymousId(anonymousId)
-                        .requestingUser(user)
-                        .accessStatus(status)
-                        .build())
-                .metadata(IdentityAccessEvent.IdentityAccessMetadata.builder()
-                        .correlationId(UUID.randomUUID().toString())
-                        .version(1)
-                        .build())
-                .build();
+        try {
+            IdentityAccessEvent event = IdentityAccessEvent.builder()
+                    .eventId(UUID.randomUUID().toString())
+                    .eventType("audit.identity.accessed")
+                    .timestamp(Instant.now())
+                    .source("circleguard-identity-service")
+                    .payload(IdentityAccessEvent.IdentityAccessPayload.builder()
+                            .anonymousId(anonymousId)
+                            .requestingUser(user)
+                            .accessStatus(status)
+                            .build())
+                    .metadata(IdentityAccessEvent.IdentityAccessMetadata.builder()
+                            .correlationId(UUID.randomUUID().toString())
+                            .version(1)
+                            .build())
+                    .build();
 
-        kafkaTemplate.send("audit.identity.accessed", event);
+            CompletableFuture.runAsync(() -> {
+                try {
+                    var future = kafkaTemplate.send("audit.identity.accessed", event);
+                    if (future != null) {
+                        future.whenComplete((result, ex) -> {
+                            if (ex != null) {
+                                log.warn("Audit event not sent (Kafka unavailable or misconfigured): {}",
+                                        ex.getMessage());
+                            }
+                        });
+                    }
+                } catch (Exception ex) {
+                    log.warn("Audit event skipped (Kafka send error): {}", ex.getMessage());
+                }
+            });
+        } catch (Exception ex) {
+            log.warn("Audit event skipped (build error): {}", ex.getMessage());
+        }
     }
 }

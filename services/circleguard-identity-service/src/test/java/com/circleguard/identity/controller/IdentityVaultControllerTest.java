@@ -1,6 +1,7 @@
 package com.circleguard.identity.controller;
 
 import com.circleguard.identity.service.IdentityVaultService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -8,6 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import org.springframework.kafka.core.KafkaTemplate;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -30,6 +32,11 @@ class IdentityVaultControllerTest {
     @MockBean
     private KafkaTemplate<String, Object> kafkaTemplate;
 
+    @BeforeEach
+    void stubKafkaSend() {
+        when(kafkaTemplate.send(anyString(), any())).thenReturn(CompletableFuture.completedFuture(null));
+    }
+
     @Test
     @WithMockUser(authorities = "identity:lookup")
     void lookupIdentity_WithPermission_ReturnsRealIdentity() throws Exception {
@@ -40,8 +47,7 @@ class IdentityVaultControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.realIdentity").value("user@example.com"));
 
-        // Verify Kafka event was emitted
-        verify(kafkaTemplate).send(eq("audit.identity.accessed"), any());
+        verify(kafkaTemplate, timeout(3000)).send(eq("audit.identity.accessed"), any());
     }
 
     @Test
@@ -76,7 +82,6 @@ class IdentityVaultControllerTest {
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.detail").value("Identity not found"));
 
-        // Verify Kafka event was emitted even on failure
-        verify(kafkaTemplate).send(eq("audit.identity.accessed"), any());
+        verify(kafkaTemplate, timeout(3000)).send(eq("audit.identity.accessed"), any());
     }
 }

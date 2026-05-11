@@ -1,6 +1,11 @@
 spring:
   application:
     name: circleguard-identity-service
+  kafka:
+    producer:
+      properties:
+        # Sin broker en dev/K8s: evita bloqueos largos en metadata al enviar auditoría.
+        max.block.ms: 3000
   mvc:
     problemdetails:
       enabled: true
@@ -22,7 +27,7 @@ vault:
   hash-salt: "12345678"
 
 jwt:
-  secret: "my-super-secret-dev-key-32-chars-long-12345678"
+  secret: ${JWT_SECRET:my-super-secret-dev-key-32-chars-long-12345678}
 
 server:
   port: 8083
