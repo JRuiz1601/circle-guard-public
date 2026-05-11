@@ -19,7 +19,8 @@ spring:
     password: admin
 
 jwt:
-  secret: "my-super-secret-dev-key-32-chars-long-12345678"
+  # En K8s: misma variable JWT_SECRET en auth e identity (ver k8s/dev/*/deployment.yaml).
+  secret: ${JWT_SECRET:my-super-secret-dev-key-32-chars-long-12345678}
   expiration: 3600000
 
 qr:
@@ -28,3 +29,8 @@ qr:
 
 server:
   port: 8180
+
+# URL del identity-service para obtener anonymousId tras login (en K8s: DNS del Service, puerto 80).
+circleguard:
+  identity:
+    map-url: ${CIRCLEGUARD_IDENTITY_MAP_URL:http://localhost:8083/api/v1/identities/map}
