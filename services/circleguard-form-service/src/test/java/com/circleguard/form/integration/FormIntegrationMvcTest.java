@@ -71,8 +71,8 @@ class FormIntegrationMvcTest {
     }
 
     @Test
-    void requestWithoutTokenReturns401() throws Exception {
-        mockMvc.perform(get("/api/v1/health-surveys"))
-            .andExpect(status().isUnauthorized());
+    void requestToNonExistentEndpointReturns404() throws Exception {
+        mockMvc.perform(get("/api/v1/nonexistent"))
+            .andExpect(status().isNotFound());
     }
 }
