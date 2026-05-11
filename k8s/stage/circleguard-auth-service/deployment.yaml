@@ -22,8 +22,12 @@ spec:
           ports:
             - containerPort: 8081
           env:
+            - name: SERVER_PORT
+              value: "8081"
             - name: SPRING_PROFILES_ACTIVE
               value: "stage"
+            - name: CIRCLEGUARD_IDENTITY_MAP_URL
+              value: "http://circleguard-identity-service/api/v1/identities/map"
           livenessProbe:
             httpGet:
               path: /actuator/health

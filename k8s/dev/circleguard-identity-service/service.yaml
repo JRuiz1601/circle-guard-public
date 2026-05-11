@@ -9,4 +9,4 @@ spec:
     app: circleguard-identity-service
   ports:
     - port: 80
-      targetPort: 8082
+      targetPort: 8083

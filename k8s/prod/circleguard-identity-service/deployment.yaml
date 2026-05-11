@@ -22,6 +22,8 @@ spec:
           ports:
             - containerPort: 8082
           env:
+            - name: SERVER_PORT
+              value: "8082"
             - name: SPRING_PROFILES_ACTIVE
               value: "prod"
           livenessProbe:

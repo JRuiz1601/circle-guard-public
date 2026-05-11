@@ -19,11 +19,13 @@ spec:
         - name: ghcr-secret
       containers:
         - name: circleguard-auth-service
-          image: ghcr.io/jruiz1601/circleguard-auth-service:latest
+          image: ghcr.io/jruiz1601/circleguard-auth-service:9
           imagePullPolicy: Always
           ports:
             - containerPort: 8081
           env:
+            - name: SERVER_PORT
+              value: "8081"
             - name: SPRING_PROFILES_ACTIVE
               value: "dev"
             - name: SPRING_DATASOURCE_USERNAME
@@ -32,6 +34,11 @@ spec:
               value: postgres
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:postgresql://postgres:5432/circleguard_auth"
+            - name: CIRCLEGUARD_IDENTITY_MAP_URL
+              value: "http://circleguard-identity-service/api/v1/identities/map"
+            # Misma clave que identity-service y application.yml (HS256); evita 401 si los tags de imagen difieren.
+            - name: JWT_SECRET
+              value: "my-super-secret-dev-key-32-chars-long-12345678"
           livenessProbe:
             httpGet:
               path: /actuator/health

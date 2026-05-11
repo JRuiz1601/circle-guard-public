@@ -19,11 +19,13 @@ spec:
         - name: ghcr-secret
       containers:
         - name: circleguard-form-service
-          image: ghcr.io/jruiz1601/circleguard-form-service:latest
+          image: ghcr.io/jruiz1601/circleguard-form-service:14
           imagePullPolicy: Always
           ports:
             - containerPort: 8083
           env:
+            - name: SERVER_PORT
+              value: "8083"
             - name: SPRING_PROFILES_ACTIVE
               value: "dev"
             - name: SPRING_DATASOURCE_USERNAME
