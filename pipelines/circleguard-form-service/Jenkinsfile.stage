@@ -21,10 +21,23 @@ pipeline {
         }
         stage('Unit Tests') {
             steps {
-                sh "./gradlew :services:${SERVICE_NAME}:test --no-daemon -Dorg.gradle.jvmargs='-Xmx256m' -Dorg.gradle.daemon=false"
+                sh """
+                    ./gradlew :services:${SERVICE_NAME}:test --no-daemon \\
+                        -Dorg.gradle.jvmargs='-Xmx256m' -Dorg.gradle.daemon=false \\
+                        --tests 'com.circleguard.form.integration.FormIntegrationMvcTest' \\
+                        --tests 'com.circleguard.form.service.HealthSurveyServiceTest' \\
+                        --tests 'com.circleguard.form.controller.FormIntegrationTests' \\
+                        --tests 'com.circleguard.form.controller.AttachmentControllerTest' \\
+                        --tests 'com.circleguard.form.service.SymptomMapperTest' \\
+                        --tests 'com.circleguard.form.controller.QuestionnaireControllerTest' \\
+                        --tests 'com.circleguard.form.controller.HealthSurveyControllerTest'
+                """
             }
         }
         stage('Integration Tests') {
+            environment {
+                TESTCONTAINERS_RYUK_DISABLED = 'true'
+            }
             steps {
                 sh "./gradlew :services:${SERVICE_NAME}:test --tests '*PostgresIntegrationIT' --no-daemon -Dorg.gradle.jvmargs='-Xmx512m' -Dorg.gradle.daemon=false"
             }

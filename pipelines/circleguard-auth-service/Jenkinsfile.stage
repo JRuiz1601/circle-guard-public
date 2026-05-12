@@ -21,10 +21,19 @@ pipeline {
         }
         stage('Unit Tests') {
             steps {
-                sh "./gradlew :services:${SERVICE_NAME}:test --no-daemon -Dorg.gradle.jvmargs='-Xmx256m' -Dorg.gradle.daemon=false"
+                sh """
+                    ./gradlew :services:${SERVICE_NAME}:test --no-daemon \\
+                        -Dorg.gradle.jvmargs='-Xmx256m' -Dorg.gradle.daemon=false \\
+                        --tests 'com.circleguard.auth.AuthUnitTests' \\
+                        --tests 'com.circleguard.auth.AuthIntegrationTests' \\
+                        --tests 'com.circleguard.auth.controller.LoginControllerTest'
+                """
             }
         }
         stage('Integration Tests') {
+            environment {
+                TESTCONTAINERS_RYUK_DISABLED = 'true'
+            }
             steps {
                 sh "./gradlew :services:${SERVICE_NAME}:test --tests '*PostgresIntegrationIT' --no-daemon -Dorg.gradle.jvmargs='-Xmx512m' -Dorg.gradle.daemon=false"
             }
