@@ -1,0 +1,99 @@
+pipeline {
+    agent any
+    environment {
+        SERVICE_NAME = 'circleguard-auth-service'
+        IMAGE = "ghcr.io/jruiz1601/${SERVICE_NAME}:${BUILD_NUMBER}"
+        GITHUB_USER = credentials('GITHUB_USER')
+        GHCR_TOKEN = credentials('GHCR_TOKEN')
+        NAMESPACE = 'circleguard-prod'
+        KUBECONFIG = '/var/jenkins_home/.kube/config'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Build') {
+            steps {
+                sh "./gradlew :services:${SERVICE_NAME}:build -x test --no-daemon"
+            }
+        }
+        stage('Unit Tests') {
+            steps {
+                sh """
+                    ./gradlew :services:${SERVICE_NAME}:test --no-daemon \\
+                        -Dorg.gradle.jvmargs='-Xmx256m' -Dorg.gradle.daemon=false \\
+                        --tests 'com.circleguard.auth.AuthUnitTests' \\
+                        --tests 'com.circleguard.auth.AuthIntegrationTests' \\
+                        --tests 'com.circleguard.auth.controller.LoginControllerTest'
+                """
+            }
+        }
+        stage('Integration Tests') {
+            environment {
+                TESTCONTAINERS_RYUK_DISABLED = 'true'
+            }
+            steps {
+                sh """
+                    eval "\$(bash scripts/testcontainers-ci-env.sh)"
+                    ./gradlew :services:${SERVICE_NAME}:test --tests '*PostgresIntegrationIT' --no-daemon -Dorg.gradle.jvmargs='-Xmx512m' -Dorg.gradle.daemon=false
+                """
+            }
+        }
+        stage('System Tests') {
+            steps {
+                sh """
+                    if [ "${SERVICE_NAME}" = "circleguard-gateway-service" ] && [ "\${SKIP_SYSTEM_TESTS:-true}" = "false" ]; then
+                        ./gradlew :tests:e2e:test --no-daemon -Dorg.gradle.jvmargs='-Xmx512m' -Dorg.gradle.daemon=false
+                    else
+                        echo "System Tests: E2E (:tests:e2e) solo con SKIP_SYSTEM_TESTS=false en el job gateway y servicios en localhost/port-forward."
+                    fi
+                """
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                sh "docker build -t ${IMAGE} -f services/${SERVICE_NAME}/Dockerfile ."
+            }
+        }
+        stage('Push to GHCR') {
+            steps {
+                sh """
+                    echo \${GHCR_TOKEN} | docker login ghcr.io -u \${GITHUB_USER} --password-stdin
+                    docker push ${IMAGE}
+                """
+            }
+        }
+        stage('Deploy to Prod') {
+            steps {
+                sh "sed -i 's/:latest/:\${BUILD_NUMBER}/g' k8s/prod/${SERVICE_NAME}/deployment.yaml"
+                sh "kubectl apply -f k8s/prod/${SERVICE_NAME}/ --namespace=\${NAMESPACE} --validate=false"
+            }
+        }
+        stage('Release Notes') {
+            steps {
+                sh """
+                    if [ "${SERVICE_NAME}" = "circleguard-gateway-service" ]; then
+                        chmod +x scripts/generate-release-notes.sh
+                        bash scripts/generate-release-notes.sh
+                    else
+                        echo "Release Notes: CHANGELOG se actualiza solo desde circleguard-gateway-master (evita duplicados)."
+                    fi
+                """
+            }
+        }
+    }
+    post {
+        always {
+            junit allowEmptyResults: true, testResults: "services/${SERVICE_NAME}/build/test-results/test/*.xml"
+            cleanWs()
+        }
+        success {
+            echo "✅ circleguard-auth-service deployed to PROD"
+        }
+        failure {
+            echo "❌ Pipeline MASTER/PROD failed for circleguard-auth-service"
+        }
+    }
+}

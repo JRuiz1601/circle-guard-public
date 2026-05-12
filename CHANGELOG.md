@@ -13,4 +13,5 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 - CI/CD pipeline structure (dev, stage, prod)
 - Kubernetes manifests for 6 microservices
 - Unit, integration, E2E, and performance tests
-- Automated Release Notes generation script
+- Automated Release Notes generation script (`scripts/generate-release-notes.sh`) y CI Testcontainers (`scripts/testcontainers-ci-env.sh`)
+- Pipelines `Jenkinsfile.master` (prod) para los 6 microservicios
