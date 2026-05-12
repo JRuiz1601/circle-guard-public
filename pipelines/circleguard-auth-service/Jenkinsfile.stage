@@ -37,10 +37,17 @@ pipeline {
             steps {
                 sh """
                     if [ -f /.dockerenv ] && [ -z "\${TESTCONTAINERS_HOST_OVERRIDE:-}" ]; then
-                        GW=\$(ip -4 route show default 2>/dev/null | awk '{print \$3}' | head -n1)
-                        if [ -n "\$GW" ]; then
-                            export TESTCONTAINERS_HOST_OVERRIDE="\$GW"
+                        LINE=\$(ip -4 route list match 0/0 2>/dev/null | head -n1 || true)
+                        [ -z "\$LINE" ] && LINE=\$(ip route 2>/dev/null | grep '^default' | head -n1 || true)
+                        GW=
+                        if [ -n "\$LINE" ]; then
+                            set -- \$LINE
+                            if [ "\$1" = default ] && [ "\$2" = via ]; then
+                                GW=\$3
+                            fi
                         fi
+                        [ -z "\$GW" ] && GW=172.17.0.1
+                        export TESTCONTAINERS_HOST_OVERRIDE="\$GW"
                     fi
                     ./gradlew :services:${SERVICE_NAME}:test --tests '*PostgresIntegrationIT' --no-daemon -Dorg.gradle.jvmargs='-Xmx512m' -Dorg.gradle.daemon=false
                 """
