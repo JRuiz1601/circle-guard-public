@@ -51,3 +51,10 @@ neo4jdata/
 patch.json
 probe-patch.json
 port-patch*.json
+
+# Python (p. ej. Locust)
+__pycache__/
+*.py[cod]
+
+# Subidas locales generadas por tests (file-service)
+services/circleguard-file-service/uploads/
