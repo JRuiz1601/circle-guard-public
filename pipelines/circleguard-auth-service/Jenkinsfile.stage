@@ -35,7 +35,15 @@ pipeline {
                 TESTCONTAINERS_RYUK_DISABLED = 'true'
             }
             steps {
-                sh "./gradlew :services:${SERVICE_NAME}:test --tests '*PostgresIntegrationIT' --no-daemon -Dorg.gradle.jvmargs='-Xmx512m' -Dorg.gradle.daemon=false"
+                sh """
+                    if [ -f /.dockerenv ] && [ -z "\${TESTCONTAINERS_HOST_OVERRIDE:-}" ]; then
+                        GW=\$(ip -4 route show default 2>/dev/null | awk '{print \$3}' | head -n1)
+                        if [ -n "\$GW" ]; then
+                            export TESTCONTAINERS_HOST_OVERRIDE="\$GW"
+                        fi
+                    fi
+                    ./gradlew :services:${SERVICE_NAME}:test --tests '*PostgresIntegrationIT' --no-daemon -Dorg.gradle.jvmargs='-Xmx512m' -Dorg.gradle.daemon=false
+                """
             }
         }
         stage('Docker Build') {
