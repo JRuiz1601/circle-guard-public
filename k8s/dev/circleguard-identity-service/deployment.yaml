@@ -22,10 +22,10 @@ spec:
           image: ghcr.io/jruiz1601/circleguard-identity-service:latest
           imagePullPolicy: Always
           ports:
-            - containerPort: 8083
+            - containerPort: 8082
           env:
             - name: SERVER_PORT
-              value: "8083"
+              value: "8082"
             - name: SPRING_PROFILES_ACTIVE
               value: "dev"
             - name: SPRING_DATASOURCE_USERNAME
@@ -42,14 +42,14 @@ spec:
           livenessProbe:
             httpGet:
               path: /actuator/health
-              port: 8083
+              port: 8082
             initialDelaySeconds: 120
             periodSeconds: 10
             failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /actuator/health
-              port: 8083
+              port: 8082
             initialDelaySeconds: 120
             periodSeconds: 10
             failureThreshold: 3
