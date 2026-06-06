@@ -83,6 +83,7 @@ jobs:
           context: .
           file: services/circleguard-auth-service/Dockerfile
           push: true
+          provenance: false
           tags: |
             ghcr.io/jruiz1601/circleguard-auth-service:latest
             ghcr.io/jruiz1601/circleguard-auth-service:${{ github.run_number }}
@@ -121,6 +122,7 @@ jobs:
           context: .
           file: services/circleguard-identity-service/Dockerfile
           push: true
+          provenance: false
           tags: |
             ghcr.io/jruiz1601/circleguard-identity-service:latest
             ghcr.io/jruiz1601/circleguard-identity-service:${{ github.run_number }}
@@ -159,6 +161,7 @@ jobs:
           context: .
           file: services/circleguard-gateway-service/Dockerfile
           push: true
+          provenance: false
           tags: |
             ghcr.io/jruiz1601/circleguard-gateway-service:latest
             ghcr.io/jruiz1601/circleguard-gateway-service:${{ github.run_number }}
@@ -197,6 +200,7 @@ jobs:
           context: .
           file: services/circleguard-form-service/Dockerfile
           push: true
+          provenance: false
           tags: |
             ghcr.io/jruiz1601/circleguard-form-service:latest
             ghcr.io/jruiz1601/circleguard-form-service:${{ github.run_number }}
@@ -235,6 +239,7 @@ jobs:
           context: .
           file: services/circleguard-file-service/Dockerfile
           push: true
+          provenance: false
           tags: |
             ghcr.io/jruiz1601/circleguard-file-service:latest
             ghcr.io/jruiz1601/circleguard-file-service:${{ github.run_number }}
@@ -273,6 +278,7 @@ jobs:
           context: .
           file: services/circleguard-dashboard-service/Dockerfile
           push: true
+          provenance: false
           tags: |
             ghcr.io/jruiz1601/circleguard-dashboard-service:latest
             ghcr.io/jruiz1601/circleguard-dashboard-service:${{ github.run_number }}
