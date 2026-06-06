@@ -8,6 +8,8 @@ resource "kubernetes_deployment" "this" {
     }
   }
 
+  wait_for_rollout = false
+
   spec {
     replicas = var.replicas
 
