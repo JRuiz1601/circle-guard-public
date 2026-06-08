@@ -4,6 +4,20 @@
 
 ---
 
+## Estado actual — Jun 8, 2026
+
+| Sprint | Área | Estado |
+|---|---|---|
+| Sprint 0 | Todo excepto Minikube de Tomás | ✅ 95% completo |
+| Sprint 1 | Terraform estructura modular (namespace + microservice) | ✅ Módulos + 8 servicios en dev |
+| Sprint 1 | terraform apply Kind (dev) + HCP state | ✅ Ejecutado |
+| Sprint 1 | GHA: build + push GHCR (6 servicios) | ✅ ci-packages.yml verde |
+| Sprint 1 | GHA: SonarCloud, Trivy, ci-cd.yml completo | ⏳ Pendiente Sprint 1/2 |
+| Sprint 1 | 8 servicios en Minikube de Tomás + Observabilidad | ⏳ Pendiente (track Tomás) |
+| Sprint 2 | Todo | ⏳ Jun 9–11 |
+
+---
+
 ## 1. Decisiones técnicas confirmadas
 
 | Aspecto | Decisión |
@@ -269,13 +283,13 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 ```
 
 ### DoD Sprint 0
-- [ ] Tomás agregado como colaborador, master protegida
-- [ ] GitHub Projects board con user stories de Sprint 1 y Sprint 2
-- [ ] 3 bugs corregidos (identity port, GHA java version, Kafka listener)
-- [ ] Juan: JDK 21 instalado, Kind cluster corriendo, 3 namespaces
-- [ ] Tomás: Minikube corriendo (`--memory=10240`), 3 namespaces
-- [ ] `./gradlew build --parallel` pasa sin errores de toolchain
-- [ ] `docs/branching-strategy.md` en el repo
+- [x] Tomás agregado como colaborador, master protegida — Tomás mergeó PRs #10 y #11
+- [x] GitHub Projects board con user stories de Sprint 1 y Sprint 2 — creado con script PowerShell
+- [x] 3 bugs corregidos (identity port, GHA java version, Kafka listener) — PR #10
+- [x] Juan: JDK 21 instalado, Kind cluster corriendo, 3 namespaces — BUILD SUCCESSFUL 7m 33s
+- [ ] Tomás: Minikube corriendo (`--memory=10240`), 3 namespaces — pendiente
+- [x] `./gradlew build --parallel` pasa sin errores de toolchain — BUILD SUCCESSFUL 7m 33s
+- [x] `docs/branching-strategy.md` en el repo — PR #11
 
 ---
 
@@ -317,8 +331,8 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 *→ Prompts de Claude Code para estos 10 puntos: se entregan al inicio del Sprint 1*
 
 ### DoD Sprint 1
-- [ ] `terraform apply` funciona en Kind de Juan (namespaces + 2 servicios de prueba)
-- [ ] HCP Terraform workspace `circleguard-dev` con state remoto visible
+- [x] `terraform apply` funciona en Kind de Juan — 8 servicios + namespace desplegados (Jun 8)
+- [x] HCP Terraform workspace `circleguard-dev` con state remoto visible — backend.tf + .terraform.lock.hcl
 - [ ] GHA pipeline verde: build + unit tests + SonarCloud + Trivy por push a master
 - [ ] Los 8 servicios corriendo `1/1` en Minikube de Tomás (namespace `circleguard-dev`)
 - [ ] Prometheus raspando métricas de los 8 servicios
