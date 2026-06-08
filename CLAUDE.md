@@ -18,7 +18,7 @@ Sistema de microservicios para gestión de guardias de seguridad.
 | Cache / LDAP | Redis 7.2, OpenLDAP 1.5 |
 | Contenedores | Docker 29 / Docker Compose v2 |
 | Orquestación | Kubernetes — Kind (Juan, 8GB) + Minikube (Tomás, 16GB) |
-| CI/CD | GitHub Actions (.github/workflows/ci-cd.yml) |
+| CI/CD | GitHub Actions (.github/workflows/ci-packages.yml) |
 | IaC | Terraform + HCP Terraform (remote state) |
 | Observabilidad | Prometheus + Grafana + Loki + Jaeger + ELK |
 | Patrones resiliencia | Resilience4j (Circuit Breaker + Retry en auth-service) |
@@ -47,13 +47,51 @@ Sistema de microservicios para gestión de guardias de seguridad.
 
 - **NUNCA** hacer push directo a `master` — siempre rama feature/fix + Pull Request
 - `master` está protegida: requiere PR + 1 review + CI verde
-- Nombres de rama: `feat/<N>-descripcion`, `fix/<N>-descripcion`, `chore/...`
+- Nombres de rama: `feat/descripcion`, `fix/descripcion`, `chore/descripcion` (sin número de issue)
 - Formato de commits (**semantic-release lo lee para generar tags**):
   - `feat: descripcion` → bump minor (v1.1.0)
   - `fix: descripcion` → bump patch (v1.0.1)
   - `chore: descripcion` → sin bump
   - `docs: descripcion` → sin bump
   - `BREAKING CHANGE: descripcion` en el body → bump major (v2.0.0)
+
+---
+
+## Terraform — Reglas operativas
+
+### Antes de terraform apply (siempre)
+```bash
+# 1. terraform init es obligatorio incluso si existe .terraform.lock.hcl
+cd terraform/environments/dev
+terraform init
+
+# 2. El namespace y ghcr-secret deben existir ANTES del apply
+#    o todos los pods quedarán en ImagePullBackOff
+kubectl get ns circleguard-dev || kubectl create namespace circleguard-dev
+kubectl create secret docker-registry ghcr-secret \
+  --docker-server=ghcr.io \
+  --docker-username=jruiz1601 \
+  --docker-password=<CR_PAT> \    # GitHub PAT con scope read:packages
+  -n circleguard-dev
+```
+
+### Variables clave
+- `image_tag` por defecto: `latest` — las imágenes deben existir en GHCR con ese tag
+- `TF_API_TOKEN` debe estar en GitHub Secrets para que HCP Terraform funcione en CI
+
+### GHCR — paquetes privados por defecto
+Los paquetes de GHCR son **privados** aunque el repo sea público. Requieren:
+- `ghcr-secret` en cada namespace k8s (`circleguard-dev`, `circleguard-stage`, `circleguard-prod`)
+- El PAT es `CR_PAT` con scope `read:packages` (≠ `TF_API_TOKEN` que es de HCP Terraform)
+- Imágenes disponibles: `ghcr.io/jruiz1601/<servicio>:latest` y `:<run_number>`
+- notification-service y promotion-service **no tienen imagen** hasta que Tomás cree sus Dockerfiles
+
+---
+
+## Semantic-release — NO tocar manualmente
+- `.releaserc.json` en raíz configura el pipeline de release automático
+- Cuando un PR con commits convencionales se mergea a master, GHA crea el tag (`v1.0.0`, etc.) y actualiza `CHANGELOG.md`
+- El commit `chore(release): vX.Y.Z [skip ci]` es **generado automáticamente** — nunca modificarlo ni revertirlo
 
 ---
 
@@ -190,7 +228,7 @@ Antes de declarar cualquier tarea como completa:
 
 ```
 circle-guard-public/
-├── .github/workflows/ci-cd.yml    ← Pipeline principal GHA
+├── .github/workflows/ci-packages.yml  ← Pipeline principal GHA (build + push GHCR + semantic-release)
 ├── terraform/                     ← IaC modular (Juan)
 ├── observability/                 ← Prometheus, Grafana, Loki, ELK (Tomás)
 ├── k8s/{dev,stage,prod}/          ← Manifiestos por ambiente
