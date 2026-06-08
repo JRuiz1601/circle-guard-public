@@ -58,3 +58,6 @@ __pycache__/
 
 # Subidas locales generadas por tests (file-service)
 services/circleguard-file-service/uploads/
+
+# Claude Code — configuración local del agente (no versionar)
+.claude/
