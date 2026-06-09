@@ -124,3 +124,16 @@ Estado de completitud al cierre de este bloque:
   - Prometheus raspando metricas reales de pods de aplicacion, porque falta levantar/estabilizar los Deployments.
   - Dashboards Grafana con panels finales.
   - Loki, Jaeger y ELK ejecutados y demostrados con datos reales.
+
+Regla de responsabilidad para el cierre:
+- `docs/plan-proyecto-final.md` es la fuente de verdad para separar trabajo Tomas/Juan.
+- El cierre de este Sprint 1 debe limitarse al track Tomas: observabilidad local, servicios corriendo en Docker Desktop Kubernetes, metricas, dashboards, logs, tracing y evidencia.
+- Tareas del track Juan como GHA avanzado, SonarCloud, Trivy, Terraform multiambiente, RBAC, TLS y aprobaciones no se implementan desde este bloque; solo se documentan como dependencias si afectan la evidencia.
+
+Bloque 1 de cierre - Preflight 2026-06-09:
+- Rama: feat/observability-foundation.
+- Estado Git inicial: limpio y sincronizado con origin.
+- Contexto Kubernetes: docker-desktop.
+- Monitoring: Prometheus, Grafana, Alertmanager, Operator y kube-state-metrics en Running.
+- circleguard-dev: 8 Services y 8 ServiceMonitors existentes.
+- Bloqueo actual del DoD: los Services de circleguard-dev no tienen endpoints porque aun no hay pods de aplicacion desplegados.
