@@ -8,12 +8,12 @@
 
 | Sprint | Área | Estado |
 |---|---|---|
-| Sprint 0 | Todo excepto Minikube de Tomás | ✅ 95% completo |
+| Sprint 0 | Todo excepto cluster local de Tomás | ✅ 95% completo |
 | Sprint 1 | Terraform estructura modular (namespace + microservice) | ✅ Módulos + 8 servicios en dev |
 | Sprint 1 | terraform apply Kind (dev) + HCP state | ✅ Ejecutado |
 | Sprint 1 | GHA: build + push GHCR (6 servicios) | ✅ ci-packages.yml verde |
 | Sprint 1 | GHA: SonarCloud, Trivy, ci-cd.yml completo | ⏳ Pendiente Sprint 1/2 |
-| Sprint 1 | 8 servicios en Minikube de Tomás + Observabilidad | ⏳ Pendiente (track Tomás) |
+| Sprint 1 | 8 servicios en Docker Desktop Kubernetes de Tomás + Observabilidad | ⏳ Pendiente (track Tomás) |
 | Sprint 2 | Todo | ⏳ Jun 9–11 |
 
 ---
@@ -25,14 +25,14 @@
 | CI/CD | **GitHub Actions** (no Jenkins) — corre en la nube, cero instalación local |
 | Container registry | **GHCR** (`ghcr.io/jruiz1601/...`) — ya estaba en el GHA workflow |
 | K8s Juan (8 GB RAM) | **Kind** (`kind create cluster`) — ~500 MB overhead, solo para validar TF/RBAC/TLS |
-| K8s Tomás (16 GB RAM) | **Minikube** `--memory=10240 --cpus=6` — stack completo + observabilidad |
+| K8s Tomás (16 GB RAM) | **Docker Desktop Kubernetes** (`docker-desktop`) — stack completo + observabilidad local |
 | K8s en CI (GHA) | **Kind efímero** dentro del runner — corre integration/E2E tests por PR |
 | Terraform state | **HCP Terraform free tier** (hasta 500 recursos, gratis) |
 | Terraform providers | `kubernetes` + `helm` — Juan aplica en Kind local, demo final en cluster de Tomás |
 | SonarQube | **SonarCloud** (SaaS gratuito para repos públicos — cero instalación) |
-| Logs | **Grafana Loki** (Helm en Minikube de Tomás) + **ELK funcional** (Filebeat DaemonSet en k8s → Logstash + Elasticsearch + Kibana en docker-compose) |
+| Logs | **Grafana Loki** (Helm en Docker Desktop Kubernetes de Tomás) + **ELK funcional** (Filebeat DaemonSet en k8s → Logstash + Elasticsearch + Kibana en docker-compose) |
 | Métricas | **kube-prometheus-stack** (Helm — Prometheus + Grafana incluidos) |
-| Tracing | **Jaeger** all-in-one en Minikube de Tomás |
+| Tracing | **Jaeger** all-in-one en Docker Desktop Kubernetes de Tomás |
 | Seguridad k8s | `cert-manager` (TLS) + k8s Secrets + ServiceAccounts + RBAC |
 | Semantic versioning | **semantic-release** en GHA (commit convencional → tag vX.Y.Z) |
 | Release Notes | **git-cliff** (auto-genera CHANGELOG.md desde commits) |
@@ -56,7 +56,7 @@ el mismo motor de análisis estático. Se documenta explícitamente en `docs/arc
 ```
 ┌─────── JUAN (8 GB) ─────────────┐   ┌──────── TOMÁS (16 GB) ───────────────────┐
 │                                  │   │                                           │
-│  Kind cluster (dev local)        │   │  Minikube --memory=10240 --cpus=6        │
+│  Kind cluster (dev local)        │   │  Docker Desktop Kubernetes              │
 │  ┌──────────────────────────┐    │   │  ┌────────────────────────────────────┐  │
 │  │ namespaces dev/stage/prod │   │   │  │ 8 servicios + middleware completo  │  │
 │  │ Terraform modules test    │   │   │  │ Prometheus + Grafana + Loki        │  │
@@ -102,19 +102,19 @@ el mismo motor de análisis estático. Se documenta explícitamente en `docs/arc
 | RBAC: ServiceAccount + Role + RoleBinding por namespace | 5% | 2 | ✅ Kind local |
 | TLS: cert-manager + ClusterIssuer autofirmado + Ingress TLS | 5% | 2 | ✅ Kind local |
 
-### Track Tomás — Calidad / Observabilidad (16 GB, Minikube)
+### Track Tomás — Calidad / Observabilidad (16 GB, Docker Desktop Kubernetes)
 Área de archivos: `observability/`, `tests/`, código de servicios (Micrometer), docs
 
 | Componente | Peso | Sprint | Necesita cluster |
 |---|---|---|---|
-| Dockerfiles + k8s para notification(8082) y promotion(8088) | infra base | 1 | ✅ Minikube |
-| kube-prometheus-stack + Loki + Jaeger en k8s | 10% | 1 | ✅ Minikube |
-| Instrumentar servicios con Micrometer (`/actuator/prometheus`) + Counters de negocio: intentos login (ok/fail), forms enviados, usuarios en sesión activa | 10% | 1 | ✅ Minikube |
-| ELK funcional: `observability/elk/docker-compose.elk.yml` (ES+Logstash+Kibana) + Filebeat DaemonSet en k8s que envía logs al Logstash | 10% | 1 | ✅ Minikube + docker-compose |
+| Dockerfiles + k8s para notification(8082) y promotion(8088) | infra base | 1 | ✅ Docker Desktop Kubernetes |
+| kube-prometheus-stack + Loki + Jaeger en k8s | 10% | 1 | ✅ Docker Desktop Kubernetes |
+| Instrumentar servicios con Micrometer (`/actuator/prometheus`) + Counters de negocio: intentos login (ok/fail), forms enviados, usuarios en sesión activa | 10% | 1 | ✅ Docker Desktop Kubernetes |
+| ELK funcional: `observability/elk/docker-compose.elk.yml` (ES+Logstash+Kibana) + Filebeat DaemonSet en k8s que envía logs al Logstash | 10% | 1 | ✅ Docker Desktop Kubernetes + docker-compose |
 | OWASP ZAP en GHA pipeline | 15% | 2 | ❌ GHA |
 | JaCoCo + ampliar unit/integration/E2E (≥5 de cada tipo) | 15% | 2 | ✅ GHA Kind |
 | Documentar patrones existentes + Circuit Breaker + Feature Toggle | 10% | 2 | ❌ |
-| Alertas en Alertmanager (servicio down → alerta) | 10% | 2 | ✅ Minikube |
+| Alertas en Alertmanager (servicio down → alerta) | 10% | 2 | ✅ Docker Desktop Kubernetes |
 | Docs: arquitectura + diagramas + manual de operaciones | 10% | 2 | ❌ |
 
 ### Compartido
@@ -248,9 +248,10 @@ No inicialices nada todavía."
 ### 6.4 Instalación — Tomás (máquina de 16 GB)
 ```
 Prompt Claude Code (Tomás lo corre en SU máquina):
-"Instala Minikube en Windows 11 con driver Docker.
-Inícialo con: minikube start --driver=docker --cpus=6 --memory=10240
-Habilita addons: minikube addons enable ingress metrics-server
+"Usa Docker Desktop Kubernetes en Windows 11 como cluster local de Tomás.
+Verifica en Docker Desktop que Kubernetes esté habilitado y luego ejecuta:
+  kubectl config use-context docker-desktop
+  kubectl get nodes
 Crea los 3 namespaces: circleguard-dev, circleguard-stage, circleguard-prod
 Verifica con: kubectl get nodes y kubectl get namespaces
 Exporta el kubeconfig: kubectl config view --minify --flatten > kubeconfig-tomas.yaml
@@ -287,7 +288,7 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 - [x] GitHub Projects board con user stories de Sprint 1 y Sprint 2 — creado con script PowerShell
 - [x] 3 bugs corregidos (identity port, GHA java version, Kafka listener) — PR #10
 - [x] Juan: JDK 21 instalado, Kind cluster corriendo, 3 namespaces — BUILD SUCCESSFUL 7m 33s
-- [ ] Tomás: Minikube corriendo (`--memory=10240`), 3 namespaces — pendiente
+- [x] Tomás: Docker Desktop Kubernetes (`docker-desktop`) corriendo, 3 namespaces — nodo `Ready`, namespaces creados Jun 9
 - [x] `./gradlew build --parallel` pasa sin errores de toolchain — BUILD SUCCESSFUL 7m 33s
 - [x] `docs/branching-strategy.md` en el repo — PR #11
 
@@ -315,7 +316,7 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 ### Tomás — Observabilidad + Servicios faltantes
 1. Crear Dockerfile + k8s manifests para `notification-service` (puerto 8082) y `promotion-service` (8088)
    — usar el mismo patrón multi-stage de auth-service
-2. Levantar los 8 servicios en Minikube: validar que todos están `1/1 Running`
+2. Levantar los 8 servicios en Docker Desktop Kubernetes: validar que todos están `1/1 Running`
 3. Crear `observability/helm/` con values overrides
 4. Desplegar kube-prometheus-stack: `helm install monitoring prometheus-community/kube-prometheus-stack -f observability/helm/prometheus-values.yaml`
 5. Agregar dependencia Micrometer a cada servicio (build.gradle.kts) + habilitar `/actuator/prometheus`
@@ -334,7 +335,7 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 - [x] `terraform apply` funciona en Kind de Juan — 8 servicios + namespace desplegados (Jun 8)
 - [x] HCP Terraform workspace `circleguard-dev` con state remoto visible — backend.tf + .terraform.lock.hcl
 - [ ] GHA pipeline verde: build + unit tests + SonarCloud + Trivy por push a master
-- [ ] Los 8 servicios corriendo `1/1` en Minikube de Tomás (namespace `circleguard-dev`)
+- [ ] Los 8 servicios corriendo `1/1` en Docker Desktop Kubernetes de Tomás (namespace `circleguard-dev`)
 - [ ] Prometheus raspando métricas de los 8 servicios
 - [ ] Dashboard Grafana con latencia/throughput visible
 - [ ] Loki recibiendo logs
@@ -425,7 +426,7 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 | R5 | SonarCloud requiere token configurado | Crear cuenta en sonarcloud.io, generar token, guardarlo en GitHub Secrets como `SONAR_TOKEN` antes del Sprint 1 |
 | R6 | HCP Terraform: crear cuenta antes del Sprint 1 | app.terraform.io → crear org → crear workspaces dev/stage/prod → copiar token en `TF_API_TOKEN` en GitHub Secrets |
 | R7 | Código "arreglado" pero no reconstruido (error del Taller 2) | Regla de oro: ningún cambio cuenta hasta GHA verde → `kubectl rollout status` en el ambiente objetivo |
-| R8 | Locust + OWASP ZAP en GHA necesitan servicios corriendo | Usar Kind efímero con servicios desplegados, o apuntar a Minikube de Tomás con port-forward en el runner |
+| R8 | Locust + OWASP ZAP en GHA necesitan servicios corriendo | Usar Kind efímero con servicios desplegados, o apuntar al cluster Docker Desktop Kubernetes de Tomás con port-forward en el runner |
 | R9 | Deadline Jun 12 muy ajustado | Si algo no llega: prioridad Terraform(20%) > CI/CD(15%) > Pruebas(15%) > Obs(10%) > Ágil(10%). Seguridad(5%) y Patrones(10%) tienen "efecto demostrable mínimo" |
 
 ---
