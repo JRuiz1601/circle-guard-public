@@ -30,6 +30,8 @@ spec:
               value: "circleguard-kafka:29092"
             - name: AUTH_API_URL
               value: "http://circleguard-auth-service"
+            - name: MANAGEMENT_HEALTH_MAIL_ENABLED
+              value: "false"
           livenessProbe:
             httpGet:
               path: /actuator/health

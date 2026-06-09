@@ -154,3 +154,52 @@ Bloque 2 de cierre - Pausa por emergencia de espacio en disco:
   - Liberar espacio primero.
   - Luego reconstruir notification/promotion para asegurar imagenes actualizadas con Actuator/Prometheus.
   - Despues aplicar middleware y deployments.
+
+Bloque 2 de cierre - Reanudacion y estabilizacion runtime local 2026-06-09:
+- Estado inicial tras liberar espacio:
+  - Rama `feat/observability-foundation` limpia y sincronizada con origin.
+  - Docker Desktop Kubernetes activo en contexto `docker-desktop`.
+  - Docker ya tenia las 8 etiquetas locales `circleguard-*-service:local`.
+- Builds ejecutados:
+  - `docker build -f services/circleguard-notification-service/Dockerfile -t circleguard-notification-service:local .`: exitoso usando cache.
+  - `docker build -f services/circleguard-promotion-service/Dockerfile -t circleguard-promotion-service:local .`: exitoso.
+  - `docker build -f services/circleguard-auth-service/Dockerfile -t circleguard-auth-service:local .`: exitoso.
+- Middleware aplicado:
+  - `kubectl apply -f k8s/dev/middleware`
+  - Postgres, Redis, Neo4j, Zookeeper, Kafka y OpenLDAP quedaron `1/1 Running`.
+- Deployments aplicados/reiniciados:
+  - Se aplicaron los 8 deployments de `k8s/dev`.
+  - `notification` se reconfiguro con `MANAGEMENT_HEALTH_MAIL_ENABLED=false` porque su health indicator intentaba conectar a SMTP `localhost:25` y devolvia 503.
+  - `promotion` fallo por Flyway: `relation "system_settings" does not exist` en `V2__add_status_timing_settings.sql`.
+  - Se agrego migracion `V1_1__create_system_settings.sql` para crear/sembrar `system_settings` antes de V2.
+  - `auth` fallo porque `SecurityConfig` tenia LDAP hardcodeado a `ldap://localhost:389`; se cambio para leer `spring.ldap.*`, que en Kubernetes llega desde `SPRING_LDAP_URLS`.
+- Resultado final de runtime:
+  - Los 8 servicios de aplicacion en `circleguard-dev` quedaron `1/1 Running`.
+  - Los 8 servicios tienen endpoint Kubernetes activo.
+  - Los 8 ServiceMonitors siguen creados en `circleguard-dev`.
+- Validacion Prometheus:
+  - Se abrio `kubectl port-forward` temporal hacia `svc/monitoring-kube-prometheus-prometheus` en puerto local `19090`.
+  - Consulta a `/api/v1/targets?state=active` confirmo targets CircleGuard en `health=up`:
+    - circleguard-auth-service
+    - circleguard-dashboard-service
+    - circleguard-file-service
+    - circleguard-form-service
+    - circleguard-gateway-service
+    - circleguard-identity-service
+    - circleguard-notification-service
+    - circleguard-promotion-service
+- Estado Docker despues de builds:
+  - Images: 16.98 GB
+  - Local Volumes: 5.731 GB
+  - Build Cache: 5.241 GB
+  - No se ejecuto limpieza automatica para no borrar estado util sin aprobacion explicita.
+- Problemas encontrados:
+  - El primer build largo de `promotion` excedio el timeout del agente, pero el relanzamiento con timeout mayor finalizo exitosamente.
+  - Prometheus no incluye `wget` ni `curl` dentro del contenedor; se valido con port-forward temporal desde host.
+- DoD Tomas actualizado:
+  - Completado: 8 servicios `1/1 Running` en Docker Desktop Kubernetes.
+  - Completado: Prometheus raspando metricas de los 8 servicios.
+  - Pendiente: dashboard Grafana con latencia/throughput visible.
+  - Pendiente: Loki recibiendo logs.
+  - Pendiente: Jaeger mostrando trazas.
+  - Pendiente: Filebeat DaemonSet enviando logs k8s a Kibana con evidencia de al menos 3 servicios.
