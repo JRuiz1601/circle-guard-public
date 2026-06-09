@@ -32,6 +32,8 @@ spec:
               value: "bolt://circleguard-neo4j:7687"
             - name: SPRING_NEO4J_URI
               value: "bolt://circleguard-neo4j:7687"
+            - name: SPRING_DATA_REDIS_HOST
+              value: "redis"
             - name: SPRING_DATASOURCE_USERNAME
               value: postgres
             - name: SPRING_DATASOURCE_PASSWORD

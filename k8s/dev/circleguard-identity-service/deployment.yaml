@@ -15,12 +15,10 @@ spec:
       labels:
         app: circleguard-identity-service
     spec:
-      imagePullSecrets:
-        - name: ghcr-secret
       containers:
         - name: circleguard-identity-service
-          image: ghcr.io/jruiz1601/circleguard-identity-service:latest
-          imagePullPolicy: Always
+          image: circleguard-identity-service:local
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8082
           env:
@@ -39,6 +37,8 @@ spec:
             # Sin Kafka en dev: limita bloqueo en send/metadata del producer de auditoría.
             - name: SPRING_KAFKA_PRODUCER_PROPERTIES_MAX_BLOCK_MS
               value: "3000"
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "circleguard-kafka:29092"
           livenessProbe:
             httpGet:
               path: /actuator/health

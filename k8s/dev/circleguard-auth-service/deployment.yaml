@@ -15,12 +15,10 @@ spec:
       labels:
         app: circleguard-auth-service
     spec:
-      imagePullSecrets:
-        - name: ghcr-secret
       containers:
         - name: circleguard-auth-service
-          image: ghcr.io/jruiz1601/circleguard-auth-service:9
-          imagePullPolicy: Always
+          image: circleguard-auth-service:local
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081
           env:
@@ -34,6 +32,8 @@ spec:
               value: postgres
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:postgresql://postgres:5432/circleguard_auth"
+            - name: SPRING_LDAP_URLS
+              value: "ldap://circleguard-ldap:389"
             - name: CIRCLEGUARD_IDENTITY_MAP_URL
               value: "http://circleguard-identity-service/api/v1/identities/map"
             # Misma clave que identity-service y application.yml (HS256); evita 401 si los tags de imagen difieren.

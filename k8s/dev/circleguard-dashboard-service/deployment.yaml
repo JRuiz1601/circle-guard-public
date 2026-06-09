@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
         - name: circleguard-dashboard-service
-          image: ghcr.io/jruiz1601/circleguard-dashboard-service:latest
-          imagePullPolicy: Always
+          image: circleguard-dashboard-service:local
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8085
           env:
@@ -26,6 +26,12 @@ spec:
               value: "8085"
             - name: SPRING_PROFILES_ACTIVE
               value: "dev"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: postgres
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres:5432/circleguard_dashboard"
           livenessProbe:
             httpGet:
               path: /actuator/health

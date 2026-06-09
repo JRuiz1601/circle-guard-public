@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
         - name: circleguard-file-service
-          image: ghcr.io/jruiz1601/circleguard-file-service:latest
-          imagePullPolicy: Always
+          image: circleguard-file-service:local
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8084
           env:

@@ -9,7 +9,7 @@ COPY build.gradle.kts .
 COPY settings.gradle.kts .
 COPY services/circleguard-auth-service/ services/circleguard-auth-service/
 
-RUN chmod +x gradlew
+RUN sed -i 's/\r$//' gradlew && chmod +x gradlew
 RUN ./gradlew :services:circleguard-auth-service:bootJar -x test --no-daemon
 
 # ---- Stage 2: Runtime ----

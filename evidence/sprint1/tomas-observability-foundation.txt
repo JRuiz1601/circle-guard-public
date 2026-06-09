@@ -137,3 +137,20 @@ Bloque 1 de cierre - Preflight 2026-06-09:
 - Monitoring: Prometheus, Grafana, Alertmanager, Operator y kube-state-metrics en Running.
 - circleguard-dev: 8 Services y 8 ServiceMonitors existentes.
 - Bloqueo actual del DoD: los Services de circleguard-dev no tienen endpoints porque aun no hay pods de aplicacion desplegados.
+
+Bloque 2 de cierre - Pausa por emergencia de espacio en disco:
+- Se inicio preparacion de runtime local para los 8 servicios de Tomas.
+- Cambios preparados sin cerrar el bloque:
+  - Dockerfiles existentes ajustados para limpiar CRLF en `gradlew`.
+  - Deployments dev ajustados hacia imagenes locales y `imagePullPolicy: IfNotPresent`.
+  - Middleware local agregado en `k8s/dev/middleware` para Postgres, Redis, Neo4j, Zookeeper, Kafka y OpenLDAP.
+- Validacion completada antes de pausar:
+  - `kubectl apply --dry-run=client --recursive -f k8s/dev`: exitoso.
+  - No quedan referencias a `ghcr-secret`, `ghcr.io` ni `imagePullPolicy: Always` en `k8s/dev`.
+- Pausa:
+  - Tomas reporto alerta roja de SSD con aproximadamente 2.57 GB libres.
+  - Se detuvieron procesos activos de build Docker para evitar consumo adicional.
+- Reanudacion:
+  - Liberar espacio primero.
+  - Luego reconstruir notification/promotion para asegurar imagenes actualizadas con Actuator/Prometheus.
+  - Despues aplicar middleware y deployments.
