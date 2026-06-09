@@ -338,6 +338,7 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 - [ ] Los 8 servicios corriendo `1/1` en Docker Desktop Kubernetes de Tomás (namespace `circleguard-dev`)
 - [x] kube-prometheus-stack instalado en Docker Desktop Kubernetes (namespace `monitoring`) con Prometheus, Grafana, Alertmanager, Operator y kube-state-metrics en `Running`
 - [x] ServiceMonitors creados para los 8 servicios de `circleguard-dev`
+- [x] Evidencia Sprint 1 de Tomás documentada en `evidence/sprint1/tomas-observability-foundation.txt`
 - [ ] Prometheus raspando métricas de los 8 servicios
 - [ ] Dashboard Grafana con latencia/throughput visible
 - [ ] Loki recibiendo logs

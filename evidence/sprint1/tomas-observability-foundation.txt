@@ -1,6 +1,24 @@
 Sprint 1 - Observability Foundation Tomas
 Fecha: 2026-06-09
 Rama: feat/observability-foundation
+Commit auditado: c3c0c2d
+Cluster Kubernetes: docker-desktop
+Nodo: docker-desktop Ready, Kubernetes v1.34.1
+
+Alcance validado contra PlanSprint1.md:
+- Paso 1 Preflight: ejecutado y documentado en bitacora global de Tomas.
+- Paso 2 Dockerfiles para servicios faltantes: completado para notification y promotion.
+- Paso 3 Manifests Kubernetes Dev: completado para notification y promotion; k8s/dev contiene 8 servicios.
+- Paso 4 Actuator y Prometheus: completado en los 8 servicios; build Gradle paso sin tests.
+- Paso 5 Observability Scaffold: completado con Prometheus/Grafana, Loki, Jaeger, ELK y dashboards base.
+- Paso 6 ServiceMonitors: completado con 8 ServiceMonitors en circleguard-dev.
+- Paso 7 Evidencia y documentacion: este archivo y la bitacora consolidan comandos, resultados, problemas, soluciones y pendientes.
+
+Relación con EnunciadoProyecto.md:
+- Observabilidad y monitoreo: se deja base funcional de Prometheus/Grafana, health checks, readiness/liveness probes y endpoints /actuator/prometheus.
+- Logs: se deja scaffold de Loki y ELK con Filebeat para el siguiente bloque de despliegue/validacion.
+- Tracing: se deja manifest Jaeger all-in-one validado en dry-run para el siguiente bloque.
+- Documentacion: se actualiza plan-proyecto-final.md, evidencia Sprint 1 y bitacora global de Tomas.
 
 Objetivo del bloque:
 - Punto 5: crear scaffold observability.
@@ -14,6 +32,16 @@ Archivos previstos:
 - observability/elk/docker-compose.elk.yml
 - observability/elk/filebeat-daemonset.yaml
 - observability/dashboards/README.md
+
+Archivos adicionales relacionados del Sprint 1:
+- services/circleguard-notification-service/Dockerfile
+- services/circleguard-promotion-service/Dockerfile
+- k8s/dev/circleguard-notification-service/deployment.yaml
+- k8s/dev/circleguard-notification-service/service.yaml
+- k8s/dev/circleguard-promotion-service/deployment.yaml
+- k8s/dev/circleguard-promotion-service/service.yaml
+- build.gradle.kts de los 8 servicios con micrometer-registry-prometheus
+- application.yml de los 8 servicios con management.endpoints.web.exposure.include=health,info,prometheus
 
 Notas:
 - Los ServiceMonitors usan label release=monitoring para ser descubiertos por kube-prometheus-stack.
@@ -41,6 +69,15 @@ Comandos ejecutados:
 - kubectl get servicemonitor -A
 
 Resultados principales:
+- Contexto Kubernetes confirmado: docker-desktop.
+- Nodo Kubernetes confirmado: docker-desktop Ready.
+- Helm release confirmado:
+  - name: monitoring
+  - namespace: monitoring
+  - revision: 4
+  - status: deployed
+  - chart: kube-prometheus-stack-86.2.1
+  - app version: v0.91.0
 - kube-prometheus-stack instalado en namespace monitoring.
 - Release Helm final: monitoring, revision 4, status deployed.
 - Pods finales en monitoring:
@@ -73,3 +110,17 @@ Soluciones aplicadas:
 - Se agrego `metadata.labels.app` a los 8 Services dev.
 - Se nombro el puerto de los 8 Services dev como `http`.
 - Se deshabilito node-exporter con `nodeExporter.enabled=false` y `prometheus-node-exporter.enabled=false`, ya que el objetivo del bloque es metricas de servicios y Docker Desktop no soporta bien ese mount host para node-exporter.
+
+Estado de completitud al cierre de este bloque:
+- Satisfecho:
+  - Scaffold observability versionado.
+  - ServiceMonitors versionados y aplicados.
+  - Prometheus/Grafana instalados y en Running.
+  - Evidencia textual versionada.
+  - Plan del proyecto actualizado con estado real.
+  - Bitacora global de Tomas actualizada fuera del repo.
+- No marcado como completado todavia:
+  - Los 8 Deployments de aplicacion en 1/1 Running.
+  - Prometheus raspando metricas reales de pods de aplicacion, porque falta levantar/estabilizar los Deployments.
+  - Dashboards Grafana con panels finales.
+  - Loki, Jaeger y ELK ejecutados y demostrados con datos reales.
