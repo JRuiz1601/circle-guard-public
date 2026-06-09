@@ -3,10 +3,13 @@ kind: Service
 metadata:
   name: circleguard-dashboard-service
   namespace: circleguard-dev
+  labels:
+    app: circleguard-dashboard-service
 spec:
   type: ClusterIP
   selector:
     app: circleguard-dashboard-service
   ports:
-    - port: 80
+    - name: http
+      port: 80
       targetPort: 8085

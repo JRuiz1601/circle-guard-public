@@ -3,10 +3,13 @@ kind: Service
 metadata:
   name: circleguard-notification-service
   namespace: circleguard-dev
+  labels:
+    app: circleguard-notification-service
 spec:
   type: ClusterIP
   selector:
     app: circleguard-notification-service
   ports:
-    - port: 80
+    - name: http
+      port: 80
       targetPort: 8082

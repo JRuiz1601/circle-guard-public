@@ -3,10 +3,13 @@ kind: Service
 metadata:
   name: circleguard-promotion-service
   namespace: circleguard-dev
+  labels:
+    app: circleguard-promotion-service
 spec:
   type: ClusterIP
   selector:
     app: circleguard-promotion-service
   ports:
-    - port: 80
+    - name: http
+      port: 80
       targetPort: 8088
