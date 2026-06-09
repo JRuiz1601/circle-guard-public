@@ -13,7 +13,7 @@
 | Sprint 1 | terraform apply Kind (dev) + HCP state | ✅ Ejecutado |
 | Sprint 1 | GHA: build + push GHCR (6 servicios) | ✅ ci-packages.yml verde |
 | Sprint 1 | GHA: SonarCloud, Trivy, ci-cd.yml completo | ⏳ Pendiente Sprint 1/2 |
-| Sprint 1 | 8 servicios en Docker Desktop Kubernetes de Tomás + Observabilidad | ⏳ Pendiente (track Tomás) |
+| Sprint 1 | 8 servicios en Docker Desktop Kubernetes de Tomás + Observabilidad | En progreso: Dockerfiles, k8s/dev, Actuator, Prometheus/Grafana y ServiceMonitors listos; faltan pods 1/1, dashboards, Loki, Jaeger y ELK |
 | Sprint 2 | Todo | ⏳ Jun 9–11 |
 
 ---
@@ -336,6 +336,8 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 - [x] HCP Terraform workspace `circleguard-dev` con state remoto visible — backend.tf + .terraform.lock.hcl
 - [ ] GHA pipeline verde: build + unit tests + SonarCloud + Trivy por push a master
 - [ ] Los 8 servicios corriendo `1/1` en Docker Desktop Kubernetes de Tomás (namespace `circleguard-dev`)
+- [x] kube-prometheus-stack instalado en Docker Desktop Kubernetes (namespace `monitoring`) con Prometheus, Grafana, Alertmanager, Operator y kube-state-metrics en `Running`
+- [x] ServiceMonitors creados para los 8 servicios de `circleguard-dev`
 - [ ] Prometheus raspando métricas de los 8 servicios
 - [ ] Dashboard Grafana con latencia/throughput visible
 - [ ] Loki recibiendo logs

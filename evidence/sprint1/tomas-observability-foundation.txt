@@ -1,0 +1,75 @@
+Sprint 1 - Observability Foundation Tomas
+Fecha: 2026-06-09
+Rama: feat/observability-foundation
+
+Objetivo del bloque:
+- Punto 5: crear scaffold observability.
+- Punto 6: crear ServiceMonitors para los 8 servicios de circleguard-dev.
+
+Archivos previstos:
+- observability/helm/prometheus-values.yaml
+- observability/helm/loki-values.yaml
+- observability/helm/servicemonitors.yaml
+- observability/jaeger/jaeger-all-in-one.yaml
+- observability/elk/docker-compose.elk.yml
+- observability/elk/filebeat-daemonset.yaml
+- observability/dashboards/README.md
+
+Notas:
+- Los ServiceMonitors usan label release=monitoring para ser descubiertos por kube-prometheus-stack.
+- Los Services de k8s/dev deben exponer el puerto con name=http para que Prometheus Operator pueda resolver el endpoint.
+
+Pendiente de completar:
+- Despliegue de los 8 Deployments de aplicacion y validacion de pods 1/1.
+- Dashboards JSON exportados desde Grafana.
+- Loki, Jaeger y ELK aplicados/levantados en ambiente local.
+
+Comandos ejecutados:
+- kubectl apply --dry-run=client --recursive -f k8s/dev
+- kubectl apply --dry-run=client --validate=false -f observability/jaeger/jaeger-all-in-one.yaml
+- kubectl apply --dry-run=client --validate=false -f observability/elk/filebeat-daemonset.yaml
+- docker compose -f observability/elk/docker-compose.elk.yml config
+- C:\tools\helm\helm.exe repo add prometheus-community https://prometheus-community.github.io/helm-charts
+- C:\tools\helm\helm.exe repo add grafana https://grafana.github.io/helm-charts
+- C:\tools\helm\helm.exe repo update
+- C:\tools\helm\helm.exe upgrade --install monitoring prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace -f observability/helm/prometheus-values.yaml
+- kubectl apply -f k8s/dev/<servicio>/service.yaml
+- kubectl apply -f observability/helm/servicemonitors.yaml
+- kubectl get pods -n monitoring
+- kubectl get svc -n monitoring
+- kubectl get servicemonitor -n circleguard-dev
+- kubectl get servicemonitor -A
+
+Resultados principales:
+- kube-prometheus-stack instalado en namespace monitoring.
+- Release Helm final: monitoring, revision 4, status deployed.
+- Pods finales en monitoring:
+  - alertmanager-monitoring-kube-prometheus-alertmanager-0: 2/2 Running
+  - monitoring-grafana-6555f688c4-f5r5q: 3/3 Running
+  - monitoring-kube-prometheus-operator-557dcbf887-6n42c: 1/1 Running
+  - monitoring-kube-state-metrics-7f7f8474d9-h7hqp: 1/1 Running
+  - prometheus-monitoring-kube-prometheus-prometheus-0: 2/2 Running
+- Services principales en monitoring:
+  - monitoring-grafana: ClusterIP, puerto 80
+  - monitoring-kube-prometheus-prometheus: ClusterIP, puerto 9090
+  - monitoring-kube-prometheus-alertmanager: ClusterIP, puerto 9093
+- ServiceMonitors de CircleGuard creados en circleguard-dev:
+  - circleguard-auth-service
+  - circleguard-dashboard-service
+  - circleguard-file-service
+  - circleguard-form-service
+  - circleguard-gateway-service
+  - circleguard-identity-service
+  - circleguard-notification-service
+  - circleguard-promotion-service
+
+Problemas encontrados:
+- Primer upgrade Helm emitio warning por `serviceMonitorNamespaceSelector.matchNames`; el CRD espera un selector de labels, no una lista `matchNames`.
+- Los Services de `k8s/dev` no tenian labels `app` en metadata ni puerto nombrado; los ServiceMonitors no podian seleccionarlos de forma fiable.
+- `prometheus-node-exporter` entro en CrashLoopBackOff en Docker Desktop Kubernetes con el error: `path / is mounted on / but it is not a shared or slave mount`.
+
+Soluciones aplicadas:
+- Se cambio `serviceMonitorNamespaceSelector` a `{}` para permitir discovery de ServiceMonitors fuera de `monitoring`.
+- Se agrego `metadata.labels.app` a los 8 Services dev.
+- Se nombro el puerto de los 8 Services dev como `http`.
+- Se deshabilito node-exporter con `nodeExporter.enabled=false` y `prometheus-node-exporter.enabled=false`, ya que el objetivo del bloque es metricas de servicios y Docker Desktop no soporta bien ese mount host para node-exporter.
