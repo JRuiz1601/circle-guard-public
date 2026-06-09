@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: circleguard-notification-service
+  namespace: circleguard-dev
+  labels:
+    app: circleguard-notification-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: circleguard-notification-service
+  template:
+    metadata:
+      labels:
+        app: circleguard-notification-service
+    spec:
+      containers:
+        - name: circleguard-notification-service
+          image: circleguard-notification-service:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SERVER_PORT
+              value: "8082"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "dev"
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "circleguard-kafka:29092"
+            - name: AUTH_API_URL
+              value: "http://circleguard-auth-service"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8082
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8082
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

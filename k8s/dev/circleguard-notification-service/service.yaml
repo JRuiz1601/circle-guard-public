@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: circleguard-notification-service
+  namespace: circleguard-dev
+spec:
+  type: ClusterIP
+  selector:
+    app: circleguard-notification-service
+  ports:
+    - port: 80
+      targetPort: 8082
