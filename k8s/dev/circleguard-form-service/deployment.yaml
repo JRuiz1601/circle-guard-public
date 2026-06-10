@@ -15,12 +15,10 @@ spec:
       labels:
         app: circleguard-form-service
     spec:
-      imagePullSecrets:
-        - name: ghcr-secret
       containers:
         - name: circleguard-form-service
-          image: ghcr.io/jruiz1601/circleguard-form-service:14
-          imagePullPolicy: Always
+          image: circleguard-form-service:local
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8083
           env:
@@ -28,12 +26,16 @@ spec:
               value: "8083"
             - name: SPRING_PROFILES_ACTIVE
               value: "dev"
+            - name: SPRING_APPLICATION_JSON
+              value: '{"management":{"metrics":{"distribution":{"percentiles-histogram":{"http.server.requests":true}}}}}'
             - name: SPRING_DATASOURCE_USERNAME
               value: postgres
             - name: SPRING_DATASOURCE_PASSWORD
               value: postgres
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:postgresql://postgres:5432/circleguard_form"
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "circleguard-kafka:29092"
           livenessProbe:
             httpGet:
               path: /actuator/health

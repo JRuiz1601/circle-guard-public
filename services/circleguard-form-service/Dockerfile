@@ -9,7 +9,7 @@ COPY build.gradle.kts .
 COPY settings.gradle.kts .
 COPY services/circleguard-form-service/ services/circleguard-form-service/
 
-RUN chmod +x gradlew
+RUN sed -i 's/\r$//' gradlew && chmod +x gradlew
 RUN ./gradlew :services:circleguard-form-service:bootJar -x test --no-daemon
 
 # ---- Stage 2: Runtime ----

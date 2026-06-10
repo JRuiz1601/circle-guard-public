@@ -3,10 +3,13 @@ kind: Service
 metadata:
   name: circleguard-form-service
   namespace: circleguard-dev
+  labels:
+    app: circleguard-form-service
 spec:
   type: ClusterIP
   selector:
     app: circleguard-form-service
   ports:
-    - port: 80
+    - name: http
+      port: 80
       targetPort: 8083

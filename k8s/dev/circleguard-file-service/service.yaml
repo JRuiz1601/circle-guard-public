@@ -3,10 +3,13 @@ kind: Service
 metadata:
   name: circleguard-file-service
   namespace: circleguard-dev
+  labels:
+    app: circleguard-file-service
 spec:
   type: ClusterIP
   selector:
     app: circleguard-file-service
   ports:
-    - port: 80
+    - name: http
+      port: 80
       targetPort: 8084

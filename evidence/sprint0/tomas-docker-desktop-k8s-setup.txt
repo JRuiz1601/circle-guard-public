@@ -1,0 +1,64 @@
+Sprint 0 - Tomas - Docker Desktop Kubernetes setup
+Fecha: 2026-06-09
+Rama: feat/observability-foundation
+
+Decision:
+- Se usa Docker Desktop Kubernetes como cluster local de Tomas.
+- Se reemplaza Minikube por el contexto Kubernetes local `docker-desktop`.
+
+Validacion Docker:
+Comando:
+  docker info --format '{{.ServerVersion}}'
+Resultado:
+  28.5.1
+
+Validacion Kubernetes:
+Comando:
+  kubectl config use-context docker-desktop
+Resultado:
+  Switched to context "docker-desktop".
+
+Comando:
+  kubectl get nodes
+Resultado:
+  NAME             STATUS   ROLES           AGE   VERSION
+  docker-desktop   Ready    control-plane   26d   v1.34.1
+
+Namespaces creados:
+Comandos:
+  kubectl create namespace circleguard-dev
+  kubectl create namespace circleguard-stage
+  kubectl create namespace circleguard-prod
+
+Resultado:
+  namespace/circleguard-dev created
+  namespace/circleguard-stage created
+  namespace/circleguard-prod created
+
+Comando:
+  kubectl get namespaces
+Resultado:
+  NAME                STATUS   AGE
+  circleguard-dev     Active   25s
+  circleguard-prod    Active   26s
+  circleguard-stage   Active   25s
+  default             Active   26d
+  kube-node-lease     Active   26d
+  kube-public         Active   26d
+  kube-system         Active   26d
+
+Herramientas instaladas:
+Comando:
+  C:\tools\helm\helm.exe version --short
+Resultado:
+  v3.19.0+g3d8990f
+
+Comando:
+  C:\tools\terraform\terraform.exe version
+Resultado:
+  Terraform v1.15.5
+  on windows_amd64
+
+Nota:
+- Las consultas Docker/Kubernetes pueden requerir ejecucion fuera del sandbox del agente por restricciones de proxy/permisos.
+- El PATH de usuario contiene `C:\tools\helm` y `C:\tools\terraform`; abrir una terminal nueva para usar `helm` y `terraform` por nombre corto.

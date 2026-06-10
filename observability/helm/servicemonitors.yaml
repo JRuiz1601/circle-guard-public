@@ -1,0 +1,159 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: circleguard-auth-service
+  namespace: circleguard-dev
+  labels:
+    release: monitoring
+    app.kubernetes.io/part-of: circleguard
+spec:
+  selector:
+    matchLabels:
+      app: circleguard-auth-service
+  namespaceSelector:
+    matchNames:
+      - circleguard-dev
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: circleguard-dashboard-service
+  namespace: circleguard-dev
+  labels:
+    release: monitoring
+    app.kubernetes.io/part-of: circleguard
+spec:
+  selector:
+    matchLabels:
+      app: circleguard-dashboard-service
+  namespaceSelector:
+    matchNames:
+      - circleguard-dev
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: circleguard-file-service
+  namespace: circleguard-dev
+  labels:
+    release: monitoring
+    app.kubernetes.io/part-of: circleguard
+spec:
+  selector:
+    matchLabels:
+      app: circleguard-file-service
+  namespaceSelector:
+    matchNames:
+      - circleguard-dev
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: circleguard-form-service
+  namespace: circleguard-dev
+  labels:
+    release: monitoring
+    app.kubernetes.io/part-of: circleguard
+spec:
+  selector:
+    matchLabels:
+      app: circleguard-form-service
+  namespaceSelector:
+    matchNames:
+      - circleguard-dev
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: circleguard-gateway-service
+  namespace: circleguard-dev
+  labels:
+    release: monitoring
+    app.kubernetes.io/part-of: circleguard
+spec:
+  selector:
+    matchLabels:
+      app: circleguard-gateway-service
+  namespaceSelector:
+    matchNames:
+      - circleguard-dev
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: circleguard-identity-service
+  namespace: circleguard-dev
+  labels:
+    release: monitoring
+    app.kubernetes.io/part-of: circleguard
+spec:
+  selector:
+    matchLabels:
+      app: circleguard-identity-service
+  namespaceSelector:
+    matchNames:
+      - circleguard-dev
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: circleguard-notification-service
+  namespace: circleguard-dev
+  labels:
+    release: monitoring
+    app.kubernetes.io/part-of: circleguard
+spec:
+  selector:
+    matchLabels:
+      app: circleguard-notification-service
+  namespaceSelector:
+    matchNames:
+      - circleguard-dev
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: circleguard-promotion-service
+  namespace: circleguard-dev
+  labels:
+    release: monitoring
+    app.kubernetes.io/part-of: circleguard
+spec:
+  selector:
+    matchLabels:
+      app: circleguard-promotion-service
+  namespaceSelector:
+    matchNames:
+      - circleguard-dev
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
