@@ -4,17 +4,22 @@
 
 ---
 
-## Estado actual — Jun 8, 2026
+## Estado actual — Jun 9, 2026
 
 | Sprint | Área | Estado |
 |---|---|---|
-| Sprint 0 | Todo excepto cluster local de Tomás | ✅ 95% completo |
-| Sprint 1 | Terraform estructura modular (namespace + microservice) | ✅ Módulos + 8 servicios en dev |
-| Sprint 1 | terraform apply Kind (dev) + HCP state | ✅ Ejecutado |
-| Sprint 1 | GHA: build + push GHCR (6 servicios) | ✅ ci-packages.yml verde |
-| Sprint 1 | GHA: SonarCloud, Trivy, ci-cd.yml completo | ⏳ Pendiente Sprint 1/2 |
-| Sprint 1 | 8 servicios en Docker Desktop Kubernetes de Tomás + Observabilidad | ✅ 8 pods 1/1, Prometheus/Grafana, ServiceMonitors, dashboard, Loki, Jaeger y ELK/Filebeat validados |
-| Sprint 2 | Todo | ⏳ Jun 9–11 |
+| Sprint 0 | Todo | ✅ 100% completo |
+| Sprint 1 | Terraform IaC — módulos namespace/microservice/middleware, Kind dev, HCP state | ✅ PR #16–#20 |
+| Sprint 1 | GHA: build + push GHCR (6 servicios activos) — ci-packages.yml | ✅ GHA verde |
+| Sprint 1 | Semantic-release + git-cliff — release.yml independiente | ✅ PR #21–#25 |
+| Sprint 1 | 8 servicios en Docker Desktop Kubernetes de Tomás (1/1 Running) | ✅ Sprint 1 Tomás |
+| Sprint 1 | Observabilidad: Prometheus/Grafana/Loki/Jaeger/ELK+Filebeat, ServiceMonitors, dashboards | ✅ Sprint 1 Tomás |
+| Sprint 1 | GHA: SonarCloud + Trivy | ⏳ Pendiente — Sprint 2 |
+| Sprint 1 | Iteración 1 en GitHub Projects (screenshots) | ⏳ Pendiente |
+| Sprint 2 | Circuit Breaker + Retry + Feature Toggle (auth-service, gateway-service) | ⏳ Jun 9–11 — Juan |
+| Sprint 2 | k8s Secrets + RBAC + TLS (cert-manager) | ⏳ Jun 9–11 — Juan |
+| Sprint 2 | OWASP ZAP + JaCoCo + E2E/unit/integration tests | ⏳ Jun 9–11 — Tomás |
+| Sprint 2 | Alertmanager + docs (design-patterns, change-management) | ⏳ Jun 9–11 — Tomás |
 
 ---
 

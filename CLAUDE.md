@@ -17,8 +17,8 @@ Sistema de microservicios para gestión de guardias de seguridad.
 | Mensajería | Apache Kafka 7.6 + Zookeeper |
 | Cache / LDAP | Redis 7.2, OpenLDAP 1.5 |
 | Contenedores | Docker 29 / Docker Compose v2 |
-| Orquestación | Kubernetes — Kind (Juan, 8GB) + Minikube (Tomás, 16GB) |
-| CI/CD | GitHub Actions (.github/workflows/ci-packages.yml) |
+| Orquestación | Kubernetes — Kind (Juan, 8GB) + Docker Desktop Kubernetes (Tomás, 16GB) |
+| CI/CD | GitHub Actions — `ci-packages.yml` (build + push GHCR) · `release.yml` (semantic-release) |
 | IaC | Terraform + HCP Terraform (remote state) |
 | Observabilidad | Prometheus + Grafana + Loki + Jaeger + ELK |
 | Patrones resiliencia | Resilience4j (Circuit Breaker + Retry en auth-service) |
@@ -35,8 +35,8 @@ Sistema de microservicios para gestión de guardias de seguridad.
 | circleguard-form-service | 8083 | ✅ | ✅ dev/stage/prod |
 | circleguard-file-service | 8084 | ✅ | ✅ dev/stage/prod |
 | circleguard-dashboard-service | 8085 | ✅ | ✅ dev/stage/prod |
-| circleguard-notification-service | 8082* | ❌ pendiente | ❌ pendiente |
-| circleguard-promotion-service | 8088 | ❌ pendiente | ❌ pendiente |
+| circleguard-notification-service | 8082* | ✅ Sprint 1 Tomás | ✅ dev |
+| circleguard-promotion-service | 8088 | ✅ Sprint 1 Tomás | ✅ dev |
 
 *notification-service comparte puerto con identity-service. En k8s no hay conflicto
 (pods con IPs distintas). Para port-forward local usar puerto host 18082.
@@ -54,6 +54,8 @@ Sistema de microservicios para gestión de guardias de seguridad.
   - `chore: descripcion` → sin bump
   - `docs: descripcion` → sin bump
   - `BREAKING CHANGE: descripcion` en el body → bump major (v2.0.0)
+- **Antes de iniciar trabajo**: `git status` para verificar en qué rama estás.
+  Si la rama ya fue mergeada o es desconocida → `git checkout master && git pull origin master` antes de crear una rama nueva.
 
 ---
 
@@ -84,7 +86,7 @@ Los paquetes de GHCR son **privados** aunque el repo sea público. Requieren:
 - `ghcr-secret` en cada namespace k8s (`circleguard-dev`, `circleguard-stage`, `circleguard-prod`)
 - El PAT es `CR_PAT` con scope `read:packages` (≠ `TF_API_TOKEN` que es de HCP Terraform)
 - Imágenes disponibles: `ghcr.io/jruiz1601/<servicio>:latest` y `:<run_number>`
-- notification-service y promotion-service **no tienen imagen** hasta que Tomás cree sus Dockerfiles
+- notification-service y promotion-service tienen Dockerfile desde Sprint 1 (Tomás) — GHCR build pendiente de agregar al ci-packages.yml
 
 ---
 
@@ -172,6 +174,15 @@ Los 3 ambientes van en namespaces separados:
 - `circleguard-stage` → staging, requiere aprobación manual
 - `circleguard-prod` → producción, requiere aprobación manual
 
+### Clusters locales — contextos kubectl
+| Cluster | Context | Responsable | Uso |
+|---|---|---|---|
+| Kind | `kind-circleguard` | Juan (8 GB) | Validar Terraform/RBAC/TLS — no corre el stack completo |
+| Docker Desktop K8s | `docker-desktop` | Tomás (16 GB) | Stack completo + observabilidad — cluster de demo |
+
+Namespace observabilidad (Tomás): `monitoring` — Prometheus, Grafana, Alertmanager, Loki, Jaeger.
+Archivos: `observability/helm/`, `observability/elk/`, `observability/jaeger/`
+
 ---
 
 ## Kafka — configuración correcta para Docker/k8s
@@ -188,6 +199,27 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:circleguard-kafka:29092}
 ```
+
+---
+
+## Protocolo de sesión — OBLIGATORIO
+
+### Al iniciar una sesión
+1. Leer `docs/plan-proyecto-final.md` — revisar bloque "Estado actual" y DoD del sprint activo
+2. Verificar rama activa: `git status` — si la rama ya fue mergeada, ejecutar `git checkout master && git pull origin master`
+
+### Actualizar checkboxes — regla de evidencia
+**NUNCA marcar `[x]` sin citar evidencia verificable.** Evidencia aceptada:
+- Número de PR mergeado a master (ej. PR #20)
+- Hash de commit visible en `git log origin/master`
+- Salida de comando que confirma el estado: `kubectl get pods`, `terraform apply` exitoso, GHA run verde
+
+Si hay duda sobre si algo está realmente completado → dejar `[ ]` y agregar nota con qué falta verificar.
+El agente **no puede** marcar [x] basándose solo en contexto de conversación o en lo que "debería" estar hecho.
+
+### Al cerrar una sesión
+Actualizar el bloque "Estado actual" en `docs/plan-proyecto-final.md` citando evidencia
+(número de PR, run de GHA) para cada ítem que se marque como ✅.
 
 ---
 
