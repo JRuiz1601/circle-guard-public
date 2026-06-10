@@ -11,10 +11,11 @@
 | Sprint 0 | Todo | ✅ 100% completo |
 | Sprint 1 | Terraform IaC — módulos namespace/microservice/middleware, Kind dev, HCP state | ✅ PR #16–#20 |
 | Sprint 1 | GHA: build + push GHCR (6 servicios activos) — ci-packages.yml | ✅ GHA verde |
-| Sprint 1 | Semantic-release + git-cliff — release.yml independiente | ✅ PR #21–#25 |
+| Sprint 1 | Semantic-release + git-cliff — release.yml independiente | ✅ PR #21–#25 — tag v1.0.0 creado automáticamente |
 | Sprint 1 | 8 servicios en Docker Desktop Kubernetes de Tomás (1/1 Running) | ✅ Sprint 1 Tomás |
 | Sprint 1 | Observabilidad: Prometheus/Grafana/Loki/Jaeger/ELK+Filebeat, ServiceMonitors, dashboards | ✅ Sprint 1 Tomás |
-| Sprint 1 | GHA: SonarCloud + Trivy | ⏳ Pendiente — Sprint 2 |
+| Sprint 1 | GHA: SonarCloud + Trivy | ⏳ Pendiente — Sprint 2 (ci-packages.yml nunca se renombró a ci-cd.yml) |
+| Sprint 1 | GHCR build notification-service + promotion-service en ci-packages.yml | ⏳ Pendiente — Sprint 2 (Dockerfiles existen, falta agregar al pipeline) |
 | Sprint 1 | Iteración 1 en GitHub Projects (screenshots) | ⏳ Pendiente |
 | Sprint 2 | Circuit Breaker + Retry + Feature Toggle (auth-service, gateway-service) | ⏳ Jun 9–11 — Juan |
 | Sprint 2 | k8s Secrets + RBAC + TLS (cert-manager) | ⏳ Jun 9–11 — Juan |
@@ -289,13 +290,13 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 ```
 
 ### DoD Sprint 0
-- [x] Tomás agregado como colaborador, master protegida — Tomás mergeó PRs #10 y #11
-- [x] GitHub Projects board con user stories de Sprint 1 y Sprint 2 — creado con script PowerShell
-- [x] 3 bugs corregidos (identity port, GHA java version, Kafka listener) — PR #10
-- [x] Juan: JDK 21 instalado, Kind cluster corriendo, 3 namespaces — BUILD SUCCESSFUL 7m 33s
-- [x] Tomás: Docker Desktop Kubernetes (`docker-desktop`) corriendo, 3 namespaces — nodo `Ready`, namespaces creados Jun 9
-- [x] `./gradlew build --parallel` pasa sin errores de toolchain — BUILD SUCCESSFUL 7m 33s
-- [x] `docs/branching-strategy.md` en el repo — PR #11
+- ✅ Tomás agregado como colaborador, master protegida — Tomás mergeó PRs #10 y #11
+- ✅ GitHub Projects board con user stories de Sprint 1 y Sprint 2 — creado con script PowerShell
+- ✅ 3 bugs corregidos (identity port, GHA java version, Kafka listener) — PR #10
+- ✅ Juan: JDK 21 instalado, Kind cluster corriendo, 3 namespaces — BUILD SUCCESSFUL 7m 33s
+- ✅ Tomás: Docker Desktop Kubernetes (`docker-desktop`) corriendo, 3 namespaces — nodo `Ready`, namespaces creados Jun 9
+- ✅ `./gradlew build --parallel` pasa sin errores de toolchain — BUILD SUCCESSFUL 7m 33s
+- ✅ `docs/branching-strategy.md` en el repo — PR #11
 
 ---
 
@@ -337,19 +338,19 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 *→ Prompts de Claude Code para estos 10 puntos: se entregan al inicio del Sprint 1*
 
 ### DoD Sprint 1
-- [x] `terraform apply` funciona en Kind de Juan — 8 servicios + namespace desplegados (Jun 8)
-- [x] HCP Terraform workspace `circleguard-dev` con state remoto visible — backend.tf + .terraform.lock.hcl
-- [ ] GHA pipeline verde: build + unit tests + SonarCloud + Trivy por push a master
-- [x] Los 8 servicios corriendo `1/1` en Docker Desktop Kubernetes de Tomás (namespace `circleguard-dev`)
-- [x] kube-prometheus-stack instalado en Docker Desktop Kubernetes (namespace `monitoring`) con Prometheus, Grafana, Alertmanager, Operator y kube-state-metrics en `Running`
-- [x] ServiceMonitors creados para los 8 servicios de `circleguard-dev`
-- [x] Evidencia Sprint 1 de Tomás documentada en `evidence/sprint1/tomas-observability-foundation.txt`
-- [x] Prometheus raspando métricas de los 8 servicios
-- [x] Dashboard Grafana con latencia/throughput visible
-- [x] Loki recibiendo logs
-- [x] Jaeger mostrando trazas
-- [x] Filebeat DaemonSet enviando logs k8s → Kibana muestra logs de al menos 3 servicios
-- [ ] Iteración 1 documentada en GitHub Projects (sprint review con screenshots)
+- ✅ `terraform apply` funciona en Kind de Juan — 8 servicios + namespace desplegados (Jun 8)
+- ✅ HCP Terraform workspace `circleguard-dev` con state remoto visible — backend.tf + .terraform.lock.hcl
+- ⏳ GHA pipeline verde: build + unit tests + SonarCloud + Trivy por push a master
+- ✅ Los 8 servicios corriendo `1/1` en Docker Desktop Kubernetes de Tomás (namespace `circleguard-dev`)
+- ✅ kube-prometheus-stack instalado en Docker Desktop Kubernetes (namespace `monitoring`) con Prometheus, Grafana, Alertmanager, Operator y kube-state-metrics en `Running`
+- ✅ ServiceMonitors creados para los 8 servicios de `circleguard-dev`
+- ✅ Evidencia Sprint 1 de Tomás documentada en `evidence/sprint1/tomas-observability-foundation.txt`
+- ✅ Prometheus raspando métricas de los 8 servicios
+- ✅ Dashboard Grafana con latencia/throughput visible
+- ✅ Loki recibiendo logs
+- ✅ Jaeger mostrando trazas
+- ✅ Filebeat DaemonSet enviando logs k8s → Kibana muestra logs de al menos 3 servicios
+- ⏳ Iteración 1 documentada en GitHub Projects (sprint review con screenshots)
 
 ---
 
@@ -390,22 +391,23 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 9. Dashboard Grafana final: agregar panel de métricas de negocio (logins/min, forms activos)
 
 ### DoD Sprint 2
-- [ ] Pipeline de 3 ambientes con aprobaciones funciona de punta a punta
-- [ ] Terraform apply cubre los 3 ambientes (dev auto, stage/prod con approval)
-- [ ] Tags semánticos en repo: mínimo v1.0.0 y v1.1.0
-- [ ] CHANGELOG.md auto-generado y coherente con los tags
-- [ ] OWASP ZAP corre en pipeline y genera reporte (sin críticos no documentados)
-- [ ] JaCoCo reporta cobertura ≥70% en auth, identity, gateway
-- [ ] ≥5 E2E, ≥5 unit tests nuevas, ≥5 integration tests pasando en GHA
-- [ ] Circuit Breaker funcional (test: bajar identity-service → auth devuelve fallback, no 500)
-- [ ] Retry funcional (test: fallo transitorio → auth reintenta antes de activar CB)
-- [ ] Feature Toggle funcional (cambiar property → comportamiento cambia)
-- [ ] JWT_SECRET en k8s Secrets (no hardcodeado en ningún deployment.yaml)
-- [ ] RBAC aplicado en dev/stage/prod (kubectl get rolebindings no vacío)
-- [ ] TLS activo en Ingress (curl https:// devuelve respuesta, no error SSL)
-- [ ] `docs/design-patterns.md` y `docs/change-management.md` completos
-- [ ] Alertas Alertmanager configuradas y disparándose en prueba
-- [ ] Iteración 2 documentada en GitHub Projects
+- ⏳ Pipeline de 3 ambientes con aprobaciones funciona de punta a punta
+- ⏳ Terraform apply cubre los 3 ambientes (dev auto, stage/prod con approval)
+- ✅ Tag v1.0.0 creado automáticamente por semantic-release al mergear PR #22 (feat:)
+- ⏳ Tag v1.1.0 pendiente (se creará al mergear el siguiente feat: de Sprint 2)
+- ⏳ CHANGELOG.md auto-generado y coherente con los tags
+- ⏳ OWASP ZAP corre en pipeline y genera reporte (sin críticos no documentados)
+- ⏳ JaCoCo reporta cobertura ≥70% en auth, identity, gateway
+- ⏳ ≥5 E2E, ≥5 unit tests nuevas, ≥5 integration tests pasando en GHA
+- ⏳ Circuit Breaker funcional (test: bajar identity-service → auth devuelve fallback, no 500)
+- ⏳ Retry funcional (test: fallo transitorio → auth reintenta antes de activar CB)
+- ⏳ Feature Toggle funcional (cambiar property → comportamiento cambia)
+- ⏳ JWT_SECRET en k8s Secrets (no hardcodeado en ningún deployment.yaml)
+- ⏳ RBAC aplicado en dev/stage/prod (kubectl get rolebindings no vacío)
+- ⏳ TLS activo en Ingress (curl https:// devuelve respuesta, no error SSL)
+- ⏳ `docs/design-patterns.md` y `docs/change-management.md` completos
+- ⏳ Alertas Alertmanager configuradas y disparándose en prueba
+- ⏳ Iteración 2 documentada en GitHub Projects
 
 ---
 
