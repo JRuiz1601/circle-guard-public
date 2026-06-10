@@ -13,7 +13,7 @@
 | Sprint 1 | terraform apply Kind (dev) + HCP state | ✅ Ejecutado |
 | Sprint 1 | GHA: build + push GHCR (6 servicios) | ✅ ci-packages.yml verde |
 | Sprint 1 | GHA: SonarCloud, Trivy, ci-cd.yml completo | ⏳ Pendiente Sprint 1/2 |
-| Sprint 1 | 8 servicios en Docker Desktop Kubernetes de Tomás + Observabilidad | En progreso: Dockerfiles, k8s/dev, Actuator, Prometheus/Grafana y ServiceMonitors listos; faltan pods 1/1, dashboards, Loki, Jaeger y ELK |
+| Sprint 1 | 8 servicios en Docker Desktop Kubernetes de Tomás + Observabilidad | ✅ 8 pods 1/1, Prometheus/Grafana, ServiceMonitors, dashboard, Loki, Jaeger y ELK/Filebeat validados |
 | Sprint 2 | Todo | ⏳ Jun 9–11 |
 
 ---
@@ -340,10 +340,10 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 - [x] ServiceMonitors creados para los 8 servicios de `circleguard-dev`
 - [x] Evidencia Sprint 1 de Tomás documentada en `evidence/sprint1/tomas-observability-foundation.txt`
 - [x] Prometheus raspando métricas de los 8 servicios
-- [ ] Dashboard Grafana con latencia/throughput visible
-- [ ] Loki recibiendo logs
-- [ ] Jaeger mostrando trazas
-- [ ] Filebeat DaemonSet enviando logs k8s → Kibana muestra logs de al menos 3 servicios
+- [x] Dashboard Grafana con latencia/throughput visible
+- [x] Loki recibiendo logs
+- [x] Jaeger mostrando trazas
+- [x] Filebeat DaemonSet enviando logs k8s → Kibana muestra logs de al menos 3 servicios
 - [ ] Iteración 1 documentada en GitHub Projects (sprint review con screenshots)
 
 ---

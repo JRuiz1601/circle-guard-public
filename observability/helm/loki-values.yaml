@@ -5,9 +5,14 @@ loki:
 
 promtail:
   enabled: true
+  podLabels:
+    app: promtail
 
 grafana:
   enabled: false
+  sidecar:
+    datasources:
+      enabled: false
 
 prometheus:
   enabled: false

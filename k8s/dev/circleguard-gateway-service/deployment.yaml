@@ -26,6 +26,8 @@ spec:
               value: "8080"
             - name: SPRING_PROFILES_ACTIVE
               value: "dev"
+            - name: SPRING_APPLICATION_JSON
+              value: '{"management":{"metrics":{"distribution":{"percentiles-histogram":{"http.server.requests":true}}}}}'
             - name: SPRING_DATA_REDIS_HOST
               value: "redis"
           livenessProbe:
