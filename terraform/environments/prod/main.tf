@@ -20,13 +20,13 @@ terraform {
 
 provider "kubernetes" {
   config_path    = "~/.kube/config"
-  config_context = "minikube"
+  config_context = "docker-desktop"
 }
 
 provider "helm" {
   kubernetes {
     config_path    = "~/.kube/config"
-    config_context = "minikube"
+    config_context = "docker-desktop"
   }
 }
 
@@ -103,5 +103,81 @@ module "gateway_service" {
     SERVER_PORT            = "8080"
     SPRING_PROFILES_ACTIVE = "prod"
     AUTH_SERVICE_URL       = "http://circleguard-auth-service:8081"
+  }
+}
+
+module "form_service" {
+  source      = "../../modules/microservice"
+  name        = "circleguard-form-service"
+  namespace   = module.namespace.name
+  image       = "ghcr.io/jruiz1601/circleguard-form-service:${var.image_tag}"
+  port        = 8083
+  replicas    = var.replicas
+  environment = var.environment
+  env_vars = {
+    SERVER_PORT                = "8083"
+    SPRING_PROFILES_ACTIVE     = "prod"
+    SPRING_DATASOURCE_USERNAME = "postgres"
+    SPRING_DATASOURCE_PASSWORD = "postgres"
+    SPRING_DATASOURCE_URL      = "jdbc:postgresql://postgres:5432/circleguard_form"
+  }
+}
+
+module "file_service" {
+  source      = "../../modules/microservice"
+  name        = "circleguard-file-service"
+  namespace   = module.namespace.name
+  image       = "ghcr.io/jruiz1601/circleguard-file-service:${var.image_tag}"
+  port        = 8084
+  replicas    = var.replicas
+  environment = var.environment
+  env_vars = {
+    SERVER_PORT            = "8084"
+    SPRING_PROFILES_ACTIVE = "prod"
+  }
+}
+
+module "dashboard_service" {
+  source      = "../../modules/microservice"
+  name        = "circleguard-dashboard-service"
+  namespace   = module.namespace.name
+  image       = "ghcr.io/jruiz1601/circleguard-dashboard-service:${var.image_tag}"
+  port        = 8085
+  replicas    = var.replicas
+  environment = var.environment
+  env_vars = {
+    SERVER_PORT            = "8085"
+    SPRING_PROFILES_ACTIVE = "prod"
+  }
+}
+
+module "notification_service" {
+  source      = "../../modules/microservice"
+  name        = "circleguard-notification-service"
+  namespace   = module.namespace.name
+  image       = "ghcr.io/jruiz1601/circleguard-notification-service:${var.image_tag}"
+  port        = 8082
+  replicas    = var.replicas
+  environment = var.environment
+  env_vars = {
+    SERVER_PORT             = "8082"
+    SPRING_PROFILES_ACTIVE  = "prod"
+    KAFKA_BOOTSTRAP_SERVERS = "circleguard-kafka:29092"
+  }
+}
+
+module "promotion_service" {
+  source      = "../../modules/microservice"
+  name        = "circleguard-promotion-service"
+  namespace   = module.namespace.name
+  image       = "ghcr.io/jruiz1601/circleguard-promotion-service:${var.image_tag}"
+  port        = 8088
+  replicas    = var.replicas
+  environment = var.environment
+  env_vars = {
+    SERVER_PORT             = "8088"
+    SPRING_PROFILES_ACTIVE  = "prod"
+    KAFKA_BOOTSTRAP_SERVERS = "circleguard-kafka:29092"
+    NEO4J_URI               = "bolt://circleguard-neo4j:7687"
   }
 }
