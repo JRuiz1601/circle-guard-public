@@ -12,6 +12,8 @@ dependencies {
     implementation(platform("org.springframework.boot:spring-boot-dependencies:3.2.4"))
     testImplementation(platform("org.springframework.boot:spring-boot-dependencies:3.2.4"))
 
+    implementation("io.github.resilience4j:resilience4j-spring-boot3:2.2.0")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
