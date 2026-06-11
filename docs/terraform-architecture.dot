@@ -1,0 +1,95 @@
+digraph G {
+  rankdir = "RL";
+  node [shape = rect, fontname = "sans-serif"];
+  subgraph "cluster_module.auth_service" {
+    label = "module.auth_service"
+    fontname = "sans-serif"
+    "module.auth_service.kubernetes_config_map.this" [label="kubernetes_config_map.this"];
+    "module.auth_service.kubernetes_deployment.this" [label="kubernetes_deployment.this"];
+    "module.auth_service.kubernetes_service.this" [label="kubernetes_service.this"];
+  }
+  subgraph "cluster_module.dashboard_service" {
+    label = "module.dashboard_service"
+    fontname = "sans-serif"
+    "module.dashboard_service.kubernetes_config_map.this" [label="kubernetes_config_map.this"];
+    "module.dashboard_service.kubernetes_deployment.this" [label="kubernetes_deployment.this"];
+    "module.dashboard_service.kubernetes_service.this" [label="kubernetes_service.this"];
+  }
+  subgraph "cluster_module.file_service" {
+    label = "module.file_service"
+    fontname = "sans-serif"
+    "module.file_service.kubernetes_config_map.this" [label="kubernetes_config_map.this"];
+    "module.file_service.kubernetes_deployment.this" [label="kubernetes_deployment.this"];
+    "module.file_service.kubernetes_service.this" [label="kubernetes_service.this"];
+  }
+  subgraph "cluster_module.form_service" {
+    label = "module.form_service"
+    fontname = "sans-serif"
+    "module.form_service.kubernetes_config_map.this" [label="kubernetes_config_map.this"];
+    "module.form_service.kubernetes_deployment.this" [label="kubernetes_deployment.this"];
+    "module.form_service.kubernetes_service.this" [label="kubernetes_service.this"];
+  }
+  subgraph "cluster_module.gateway_service" {
+    label = "module.gateway_service"
+    fontname = "sans-serif"
+    "module.gateway_service.kubernetes_config_map.this" [label="kubernetes_config_map.this"];
+    "module.gateway_service.kubernetes_deployment.this" [label="kubernetes_deployment.this"];
+    "module.gateway_service.kubernetes_service.this" [label="kubernetes_service.this"];
+  }
+  subgraph "cluster_module.identity_service" {
+    label = "module.identity_service"
+    fontname = "sans-serif"
+    "module.identity_service.kubernetes_config_map.this" [label="kubernetes_config_map.this"];
+    "module.identity_service.kubernetes_deployment.this" [label="kubernetes_deployment.this"];
+    "module.identity_service.kubernetes_service.this" [label="kubernetes_service.this"];
+  }
+  subgraph "cluster_module.namespace" {
+    label = "module.namespace"
+    fontname = "sans-serif"
+    "module.namespace.kubernetes_namespace.this" [label="kubernetes_namespace.this"];
+  }
+  subgraph "cluster_module.notification_service" {
+    label = "module.notification_service"
+    fontname = "sans-serif"
+    "module.notification_service.kubernetes_config_map.this" [label="kubernetes_config_map.this"];
+    "module.notification_service.kubernetes_deployment.this" [label="kubernetes_deployment.this"];
+    "module.notification_service.kubernetes_service.this" [label="kubernetes_service.this"];
+  }
+  subgraph "cluster_module.observability" {
+    label = "module.observability"
+    fontname = "sans-serif"
+    "module.observability.helm_release.loki_stack" [label="helm_release.loki_stack"];
+    "module.observability.helm_release.prometheus_stack" [label="helm_release.prometheus_stack"];
+  }
+  subgraph "cluster_module.promotion_service" {
+    label = "module.promotion_service"
+    fontname = "sans-serif"
+    "module.promotion_service.kubernetes_config_map.this" [label="kubernetes_config_map.this"];
+    "module.promotion_service.kubernetes_deployment.this" [label="kubernetes_deployment.this"];
+    "module.promotion_service.kubernetes_service.this" [label="kubernetes_service.this"];
+  }
+  "module.auth_service.kubernetes_config_map.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.auth_service.kubernetes_deployment.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.auth_service.kubernetes_service.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.dashboard_service.kubernetes_config_map.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.dashboard_service.kubernetes_deployment.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.dashboard_service.kubernetes_service.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.file_service.kubernetes_config_map.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.file_service.kubernetes_deployment.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.file_service.kubernetes_service.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.form_service.kubernetes_config_map.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.form_service.kubernetes_deployment.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.form_service.kubernetes_service.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.gateway_service.kubernetes_config_map.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.gateway_service.kubernetes_deployment.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.gateway_service.kubernetes_service.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.identity_service.kubernetes_config_map.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.identity_service.kubernetes_deployment.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.identity_service.kubernetes_service.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.notification_service.kubernetes_config_map.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.notification_service.kubernetes_deployment.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.notification_service.kubernetes_service.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.promotion_service.kubernetes_config_map.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.promotion_service.kubernetes_deployment.this" -> "module.namespace.kubernetes_namespace.this";
+  "module.promotion_service.kubernetes_service.this" -> "module.namespace.kubernetes_namespace.this";
+}

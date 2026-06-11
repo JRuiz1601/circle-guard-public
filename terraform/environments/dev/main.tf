@@ -181,3 +181,9 @@ module "promotion_service" {
     NEO4J_URI               = "bolt://circleguard-neo4j:7687"
   }
 }
+
+module "observability" {
+  source      = "../../modules/observability"
+  namespace   = "monitoring"
+  environment = var.environment
+}
