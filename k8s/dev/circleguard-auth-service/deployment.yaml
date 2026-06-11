@@ -38,9 +38,11 @@ spec:
               value: "ldap://circleguard-ldap:389"
             - name: CIRCLEGUARD_IDENTITY_MAP_URL
               value: "http://circleguard-identity-service/api/v1/identities/map"
-            # Misma clave que identity-service y application.yml (HS256); evita 401 si los tags de imagen difieren.
             - name: JWT_SECRET
-              value: "my-super-secret-dev-key-32-chars-long-12345678"
+              valueFrom:
+                secretKeyRef:
+                  name: circleguard-secrets
+                  key: jwt-secret
           livenessProbe:
             httpGet:
               path: /actuator/health

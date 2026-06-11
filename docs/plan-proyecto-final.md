@@ -24,7 +24,7 @@
 | Sprint 2 | GitHub Environments con aprobaciones (dev/stage/prod)                                    | ✅ PR #33 — flujo dev→stage→prod con aprobación manual evidenciado      |
 | Sprint 2 | Notificaciones automáticas en pipeline                                                   | ✅ GitHub email notifications en fallos (built-in GHA)                  |
 | Sprint 2 | Circuit Breaker + Retry (auth-service)                                                   | ✅ PR #35 — Resilience4j, tag v1.3.0                                    |
-| Sprint 2 | Feature Toggle (gateway-service)                                                         | ⏳ Jun 11 — Juan                                                        |
+| Sprint 2 | Feature Toggle (gateway-service)                                                         | ✅ PR #37 — DiagnosticHeaderFilter con @ConditionalOnProperty, tag v1.4.0 |
 | Sprint 2 | k8s Secrets + RBAC + TLS (cert-manager)                                                  | ⏳ Jun 9–11 — Juan                                                      |
 | Sprint 2 | OWASP ZAP + JaCoCo + E2E/unit/integration tests                                          | ⏳ Jun 9–11 — Tomás                                                     |
 | Sprint 2 | Alertmanager + docs (design-patterns, change-management)                                 | ⏳ Jun 9–11 — Tomás                                                     |
@@ -444,8 +444,8 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 - ⏳ ≥5 E2E, ≥5 unit tests nuevas, ≥5 integration tests pasando en GHA
 - ✅ Circuit Breaker funcional — PR #35, @CircuitBreaker en IdentityClient, fallback ServiceUnavailableException
 - ✅ Retry funcional — PR #35, @Retry maxAttempts=3 waitDuration=500ms en IdentityClient
-- ⏳ Feature Toggle funcional (cambiar property → comportamiento cambia)
-- ⏳ JWT_SECRET en k8s Secrets (no hardcodeado en ningún deployment.yaml)
+- ✅ Feature Toggle funcional — PR #37, @ConditionalOnProperty en DiagnosticHeaderFilter, X-CircleGuard-Debug header activado/desactivado por env var, tag v1.4.0
+- ✅ JWT_SECRET en k8s Secrets — PR #38 (feat/k8s-secrets-jwt, 3 secret.yaml + 6 deployment.yaml, dev/stage/prod)
 - ⏳ RBAC aplicado en dev/stage/prod (kubectl get rolebindings no vacío)
 - ⏳ TLS activo en Ingress (curl https:// devuelve respuesta, no error SSL)
 - ⏳ `docs/design-patterns.md` y `docs/change-management.md` completos

@@ -26,6 +26,11 @@ spec:
               value: "8082"
             - name: SPRING_PROFILES_ACTIVE
               value: "prod"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: circleguard-secrets
+                  key: jwt-secret
           livenessProbe:
             httpGet:
               path: /actuator/health
