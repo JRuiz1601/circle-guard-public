@@ -26,6 +26,8 @@ spec:
               value: "8080"
             - name: SPRING_PROFILES_ACTIVE
               value: "prod"
+            - name: FEATURE_DIAGNOSTIC_HEADER_ENABLED
+              value: "false"
           livenessProbe:
             httpGet:
               path: /actuator/health

@@ -26,3 +26,7 @@ management:
     health:
       probes:
         enabled: true
+
+feature:
+  diagnostic-header:
+    enabled: true
