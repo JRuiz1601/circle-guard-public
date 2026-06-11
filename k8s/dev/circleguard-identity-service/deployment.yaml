@@ -35,7 +35,10 @@ spec:
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:postgresql://postgres:5432/circleguard_identity"
             - name: JWT_SECRET
-              value: "my-super-secret-dev-key-32-chars-long-12345678"
+              valueFrom:
+                secretKeyRef:
+                  name: circleguard-secrets
+                  key: jwt-secret
             # Sin Kafka en dev: limita bloqueo en send/metadata del producer de auditoría.
             - name: SPRING_KAFKA_PRODUCER_PROPERTIES_MAX_BLOCK_MS
               value: "3000"

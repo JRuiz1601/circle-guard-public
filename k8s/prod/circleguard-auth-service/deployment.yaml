@@ -28,6 +28,11 @@ spec:
               value: "prod"
             - name: CIRCLEGUARD_IDENTITY_MAP_URL
               value: "http://circleguard-identity-service/api/v1/identities/map"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: circleguard-secrets
+                  key: jwt-secret
           livenessProbe:
             httpGet:
               path: /actuator/health
