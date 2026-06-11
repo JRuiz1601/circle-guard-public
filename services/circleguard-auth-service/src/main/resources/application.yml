@@ -44,3 +44,16 @@ management:
     health:
       probes:
         enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      identityService:
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+  retry:
+    instances:
+      identityService:
+        maxAttempts: 3
+        waitDuration: 500ms
