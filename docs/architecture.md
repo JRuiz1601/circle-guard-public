@@ -286,6 +286,3 @@ kubectl rollout status deployment/circleguard-auth-service -n circleguard-dev
 terraform apply -var="image_tag=<previous-run-number>" -auto-approve
 ```
 
----
-
-*Document generated: June 2026 | CircleGuard Final Project — Ingeniería de Software V, Universidad Icesi*
