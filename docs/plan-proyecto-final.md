@@ -4,7 +4,7 @@
 
 ---
 
-## Estado actual — Jun 9, 2026
+## Estado actual — Jun 10, 2026
 
 | Sprint | Área | Estado |
 |---|---|---|
@@ -14,9 +14,13 @@
 | Sprint 1 | Semantic-release + git-cliff — release.yml independiente | ✅ PR #21–#25 — tag v1.0.0 creado automáticamente |
 | Sprint 1 | 8 servicios en Docker Desktop Kubernetes de Tomás (1/1 Running) | ✅ Sprint 1 Tomás |
 | Sprint 1 | Observabilidad: Prometheus/Grafana/Loki/Jaeger/ELK+Filebeat, ServiceMonitors, dashboards | ✅ Sprint 1 Tomás |
-| Sprint 1 | GHA: SonarCloud + Trivy | ⏳ Pendiente — Sprint 2 (ci-packages.yml nunca se renombró a ci-cd.yml) |
-| Sprint 1 | GHCR build notification-service + promotion-service en ci-packages.yml | ⏳ Pendiente — Sprint 2 (Dockerfiles existen, falta agregar al pipeline) |
+| Sprint 1 | GHA: SonarCloud + Trivy | ✅ quality.yml — PR #30 — SonarCloud verde, Trivy SARIF en Security tab |
+| Sprint 1 | GHCR build notification-service + promotion-service en ci-packages.yml | ✅ ci-packages.yml — PR #28 — 8 builds verdes |
 | Sprint 1 | Iteración 1 en GitHub Projects (screenshots) | ⏳ Pendiente |
+| Sprint 1 | Terraform stage/prod: docker-desktop + 8 servicios | ✅ PR #27 |
+| Sprint 1 | Semantic-release: v1.0.0 → v1.1.0 automático | ✅ release.yml verde |
+| Sprint 2 | GitHub Environments con aprobaciones (dev/stage/prod) | ⏳ Pendiente — hoy |
+| Sprint 2 | Notificaciones automáticas en pipeline | ⏳ Pendiente |
 | Sprint 2 | Circuit Breaker + Retry + Feature Toggle (auth-service, gateway-service) | ⏳ Jun 9–11 — Juan |
 | Sprint 2 | k8s Secrets + RBAC + TLS (cert-manager) | ⏳ Jun 9–11 — Juan |
 | Sprint 2 | OWASP ZAP + JaCoCo + E2E/unit/integration tests | ⏳ Jun 9–11 — Tomás |
@@ -340,7 +344,7 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 ### DoD Sprint 1
 - ✅ `terraform apply` funciona en Kind de Juan — 8 servicios + namespace desplegados (Jun 8)
 - ✅ HCP Terraform workspace `circleguard-dev` con state remoto visible — backend.tf + .terraform.lock.hcl
-- ⏳ GHA pipeline verde: build + unit tests + SonarCloud + Trivy por push a master
+- ✅ GHA pipeline verde: build + unit tests + SonarCloud + Trivy — PR #30
 - ✅ Los 8 servicios corriendo `1/1` en Docker Desktop Kubernetes de Tomás (namespace `circleguard-dev`)
 - ✅ kube-prometheus-stack instalado en Docker Desktop Kubernetes (namespace `monitoring`) con Prometheus, Grafana, Alertmanager, Operator y kube-state-metrics en `Running`
 - ✅ ServiceMonitors creados para los 8 servicios de `circleguard-dev`
@@ -446,7 +450,9 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 ```
 circle-guard-public/
 ├── .github/workflows/
-│   └── ci-cd.yml                  ← reemplaza ci-packages.yml (pipeline completo)
+│   ├── ci-packages.yml            ← build + push GHCR (8 servicios)
+│   ├── quality.yml                ← SonarCloud + Trivy (PR #30)
+│   └── release.yml                ← semantic-release (tags automáticos)
 ├── .releaserc.json                ← config semantic-release
 ├── cliff.toml                     ← config git-cliff
 ├── CHANGELOG.md                   ← auto-generado
