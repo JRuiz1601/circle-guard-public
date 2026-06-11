@@ -30,6 +30,8 @@ spec:
               value: '{"management":{"metrics":{"distribution":{"percentiles-histogram":{"http.server.requests":true}}}}}'
             - name: SPRING_DATA_REDIS_HOST
               value: "redis"
+            - name: FEATURE_DIAGNOSTIC_HEADER_ENABLED
+              value: "true"
           livenessProbe:
             httpGet:
               path: /actuator/health
