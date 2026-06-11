@@ -446,7 +446,7 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 - ✅ Retry funcional — PR #35, @Retry maxAttempts=3 waitDuration=500ms en IdentityClient
 - ✅ Feature Toggle funcional — PR #37, @ConditionalOnProperty en DiagnosticHeaderFilter, X-CircleGuard-Debug header activado/desactivado por env var, tag v1.4.0
 - ✅ JWT_SECRET en k8s Secrets — PR #38 (feat/k8s-secrets-jwt, 3 secret.yaml + 6 deployment.yaml, dev/stage/prod)
-- ⏳ RBAC aplicado en dev/stage/prod (kubectl get rolebindings no vacío)
+- ✅ RBAC aplicado en dev/stage/prod — PR #39 (ServiceAccount+Role+RoleBinding en k8s/dev,stage,prod)
 - ⏳ TLS activo en Ingress (curl https:// devuelve respuesta, no error SSL)
 - ⏳ `docs/design-patterns.md` y `docs/change-management.md` completos
 - ⏳ Alertas Alertmanager configuradas y disparándose en prueba
