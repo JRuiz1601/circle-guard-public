@@ -5,7 +5,7 @@
 
 ---
 
-## Estado actual — Jun 10, 2026
+## Estado actual — Jun 11, 2026
 
 
 | Sprint   | Área                                                                                     | Estado                                                                 |
@@ -23,7 +23,8 @@
 | Sprint 1 | Semantic-release: v1.0.0 → v1.1.0 automático                                             | ✅ release.yml verde                                                    |
 | Sprint 2 | GitHub Environments con aprobaciones (dev/stage/prod)                                    | ✅ PR #33 — flujo dev→stage→prod con aprobación manual evidenciado      |
 | Sprint 2 | Notificaciones automáticas en pipeline                                                   | ✅ GitHub email notifications en fallos (built-in GHA)                  |
-| Sprint 2 | Circuit Breaker + Retry + Feature Toggle (auth-service, gateway-service)                 | ⏳ Jun 9–11 — Juan                                                      |
+| Sprint 2 | Circuit Breaker + Retry (auth-service)                                                   | ✅ PR #35 — Resilience4j, tag v1.3.0                                    |
+| Sprint 2 | Feature Toggle (gateway-service)                                                         | ⏳ Jun 11 — Juan                                                        |
 | Sprint 2 | k8s Secrets + RBAC + TLS (cert-manager)                                                  | ⏳ Jun 9–11 — Juan                                                      |
 | Sprint 2 | OWASP ZAP + JaCoCo + E2E/unit/integration tests                                          | ⏳ Jun 9–11 — Tomás                                                     |
 | Sprint 2 | Alertmanager + docs (design-patterns, change-management)                                 | ⏳ Jun 9–11 — Tomás                                                     |
@@ -436,13 +437,13 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 - ✅ Pipeline de 3 ambientes con aprobaciones funciona de punta a punta — PR #33, evidencia en evidence/sprint2/
 - ⏳ Terraform apply cubre los 3 ambientes (dev auto, stage/prod con approval)
 - ✅ Tag v1.0.0 creado automáticamente por semantic-release al mergear PR #22 (feat:)
-- ⏳ Tag v1.1.0 pendiente (se creará al mergear el siguiente feat: de Sprint 2)
-- ⏳ CHANGELOG.md auto-generado y coherente con los tags
+- ✅ Tags v1.1.0, v1.1.1, v1.2.0, v1.3.0 creados automáticamente — semantic-release verde
+- ✅ CHANGELOG.md en master — generado automáticamente por semantic-release
 - ⏳ OWASP ZAP corre en pipeline y genera reporte (sin críticos no documentados)
 - ⏳ JaCoCo reporta cobertura ≥70% en auth, identity, gateway
 - ⏳ ≥5 E2E, ≥5 unit tests nuevas, ≥5 integration tests pasando en GHA
-- ⏳ Circuit Breaker funcional (test: bajar identity-service → auth devuelve fallback, no 500)
-- ⏳ Retry funcional (test: fallo transitorio → auth reintenta antes de activar CB)
+- ✅ Circuit Breaker funcional — PR #35, @CircuitBreaker en IdentityClient, fallback ServiceUnavailableException
+- ✅ Retry funcional — PR #35, @Retry maxAttempts=3 waitDuration=500ms en IdentityClient
 - ⏳ Feature Toggle funcional (cambiar property → comportamiento cambia)
 - ⏳ JWT_SECRET en k8s Secrets (no hardcodeado en ningún deployment.yaml)
 - ⏳ RBAC aplicado en dev/stage/prod (kubectl get rolebindings no vacío)

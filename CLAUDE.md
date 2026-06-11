@@ -217,6 +217,14 @@ spring:
 Si hay duda sobre si algo está realmente completado → dejar `[ ]` y agregar nota con qué falta verificar.
 El agente **no puede** marcar [x] basándose solo en contexto de conversación o en lo que "debería" estar hecho.
 
+### Después de abrir un PR (automático, sin esperar instrucción)
+1. Leer `docs/plan-proyecto-final.md` — bloque "Estado actual" y todos los DoD.
+2. Cruzar el PR recién creado con los ítems ⏳.
+3. Mostrar en el chat una **preview** de los cambios propuestos (⏳ → ✅ con PR #N como evidencia) antes de editar el archivo.
+4. Aplicar solo los cambios que el usuario confirme. Nunca marcar ✅ un ítem cuya implementación no esté en el PR o en PRs ya mergeados a master.
+
+Para revisión batch de PRs mergeados sin PR activo: usar `/sync-plan`.
+
 ### Al cerrar una sesión
 Actualizar el bloque "Estado actual" en `docs/plan-proyecto-final.md` citando evidencia
 (número de PR, run de GHA) para cada ítem que se marque como ✅.
