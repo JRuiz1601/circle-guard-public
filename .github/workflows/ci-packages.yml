@@ -360,3 +360,42 @@ jobs:
           tags: |
             ghcr.io/jruiz1601/circleguard-promotion-service:latest
             ghcr.io/jruiz1601/circleguard-promotion-service:${{ github.run_number }}
+
+  deploy-dev:
+    name: Deploy to Dev
+    runs-on: ubuntu-latest
+    needs: [activate-ghcr, build-auth-service, build-identity-service,
+            build-gateway-service, build-form-service, build-file-service,
+            build-dashboard-service, build-notification-service,
+            build-promotion-service]
+    if: github.ref == 'refs/heads/master'
+    environment: dev
+    steps:
+      - name: Deploy to dev
+        run: |
+          echo "Deploying to dev — namespace circleguard-dev"
+          echo "Images: ghcr.io/jruiz1601/circleguard-*:${{ github.run_number }}"
+
+  deploy-stage:
+    name: Deploy to Stage
+    runs-on: ubuntu-latest
+    needs: [deploy-dev]
+    if: github.ref == 'refs/heads/master'
+    environment: stage
+    steps:
+      - name: Deploy to stage
+        run: |
+          echo "Deploying to stage — namespace circleguard-stage"
+          echo "Images: ghcr.io/jruiz1601/circleguard-*:${{ github.run_number }}"
+
+  deploy-prod:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [deploy-stage]
+    if: github.ref == 'refs/heads/master'
+    environment: prod
+    steps:
+      - name: Deploy to production
+        run: |
+          echo "Deploying to prod — namespace circleguard-prod"
+          echo "Images: ghcr.io/jruiz1601/circleguard-*:${{ github.run_number }}"
