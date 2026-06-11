@@ -25,7 +25,7 @@
 | Sprint 2 | Notificaciones automáticas en pipeline                                                   | ✅ GitHub email notifications en fallos (built-in GHA)                  |
 | Sprint 2 | Circuit Breaker + Retry (auth-service)                                                   | ✅ PR #35 — Resilience4j, tag v1.3.0                                    |
 | Sprint 2 | Feature Toggle (gateway-service)                                                         | ✅ PR #37 — DiagnosticHeaderFilter con @ConditionalOnProperty, tag v1.4.0 |
-| Sprint 2 | k8s Secrets + RBAC + TLS (cert-manager)                                                  | ⏳ Jun 9–11 — Juan                                                      |
+| Sprint 2 | k8s Secrets + RBAC + TLS (cert-manager)                                                  | ✅ PR #38 (Secrets) · PR #39 (RBAC) · PR #40 (TLS cert-manager)        |
 | Sprint 2 | OWASP ZAP + JaCoCo + E2E/unit/integration tests                                          | ⏳ Jun 9–11 — Tomás                                                     |
 | Sprint 2 | Alertmanager + docs (design-patterns, change-management)                                 | ⏳ Jun 9–11 — Tomás                                                     |
 
@@ -446,8 +446,8 @@ Si falla por JDK, muéstrame el error. No arranques nada más todavía."
 - ✅ Retry funcional — PR #35, @Retry maxAttempts=3 waitDuration=500ms en IdentityClient
 - ✅ Feature Toggle funcional — PR #37, @ConditionalOnProperty en DiagnosticHeaderFilter, X-CircleGuard-Debug header activado/desactivado por env var, tag v1.4.0
 - ✅ JWT_SECRET en k8s Secrets — PR #38 (feat/k8s-secrets-jwt, 3 secret.yaml + 6 deployment.yaml, dev/stage/prod)
-- ⏳ RBAC aplicado en dev/stage/prod (kubectl get rolebindings no vacío)
-- ⏳ TLS activo en Ingress (curl https:// devuelve respuesta, no error SSL)
+- ✅ RBAC aplicado en dev/stage/prod — PR #39 (ServiceAccount + Role + RoleBinding en k8s/dev, stage, prod)
+- ✅ TLS activo en Ingress — PR #40 (cert-manager v1.15.0 + nginx ingress, certificate circleguard-gateway-tls Ready=True en circleguard-dev)
 - ⏳ `docs/design-patterns.md` y `docs/change-management.md` completos
 - ⏳ Alertas Alertmanager configuradas y disparándose en prueba
 - ⏳ Iteración 2 documentada en GitHub Projects
