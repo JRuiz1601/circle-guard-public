@@ -1,0 +1,135 @@
+Sprint 2 - Tomas - Documentacion final y evidencia
+Fecha: 2026-06-11
+Rama: feat/sprint2-tomas-quality-observability
+
+Objetivo
+
+- Cerrar el punto 7 de PlanSprint2.md.
+- Crear docs/design-patterns.md basado en codigo real.
+- Crear docs/change-management.md especifico para CircleGuard.
+- Actualizar docs/plan-proyecto-final.md solo para reflejar estado real del DoD de Tomas y trabajo de Juan ya integrado en master.
+- Registrar la accion en Bitacora-Tomas-Sprint-0-1-2.md.
+
+Sincronizacion con master
+
+Comandos ejecutados antes de documentar:
+
+- git status --short --branch
+- git fetch --all --prune
+- git branch --show-current
+- git rev-parse master
+- git rev-parse origin/master
+- git status --short --branch
+- git merge origin/master
+- git status --short --branch
+
+Estado observado:
+
+- Rama de trabajo: feat/sprint2-tomas-quality-observability.
+- master local antes del fetch: b7b1867e0e510c26b1574093d32b33010e5afb59.
+- origin/master despues del fetch: 693552344cb7c4e26d02e497b631df6612570013.
+- Merge aplicado: git merge origin/master.
+- Resultado del merge: fast-forward, sin conflictos.
+- El merge incorporo trabajo de Juan ya presente en master: pipeline multiambiente, Circuit Breaker/Retry, Feature Toggle, Secrets, RBAC, TLS, Sonar/Trivy evidence y docs/architecture.md.
+
+Fuentes revisadas
+
+- PlanSprint2.md.
+- EnunciadoProyecto.md.
+- docs/plan-proyecto-final.md despues del merge con origin/master.
+- Bitacora-Tomas-Sprint-0-1-2.md, seccion "Sprint 2 - Tomas - Calidad, Observabilidad y Documentacion".
+- evidence/sprint2/.
+- .github/workflows/quality.yml.
+- build.gradle.kts.
+- tests/performance/locustfile.py.
+- tests/performance/README.md.
+- tests/e2e/build.gradle.kts.
+- observability/alerts/circleguard-pod-alerts.yaml.
+- observability/dashboards/circleguard-sprint2-business-dashboard.json.
+- observability/dashboards/circleguard-sprint2-business-dashboard-configmap.yaml.
+- observability/helm/servicemonitors.yaml.
+
+Busquedas de codigo realizadas
+
+- rg -n "interface .*Repository|extends JpaRepository|extends Neo4jRepository|extends CrudRepository" services
+- rg -n "@KafkaListener|KafkaTemplate|ApplicationEvent|Listener|Event" services
+- rg -n "Metrics.counter|MeterRegistry|Counter|circleguard_" services
+- rg -n "CircuitBreaker|Retry|resilience4j|ConditionalOnProperty|feature|toggle|qr-validation" services k8s terraform .github docs
+
+Como se determino lo pendiente desde PlanSprint2.md
+
+- Paso 6 aparecia como Alertmanager y metricas de negocio.
+  - Estado real antes de esta documentacion: ya completado por Tomas con PrometheusRule, dashboard Grafana y evidencia tomas-alertmanager-business-metrics.txt.
+- Paso 7 aparecia como documentacion.
+  - Pendiente real: crear docs/design-patterns.md y docs/change-management.md.
+  - Pendiente real: actualizar docs/plan-proyecto-final.md solo en estados verificables.
+- Paso 8 GitHub Projects/evidencia final.
+  - Se agrego evidencia textual de documentacion en evidence/sprint2/tomas-documentation-sprint2.txt.
+  - El movimiento de GitHub Projects queda para cierre/PR si no hay captura nueva local.
+- Paso 9 validacion final y PR.
+  - En este bloque se ejecutaron validaciones minimas de documentacion.
+  - Commits, push y PR quedan como paso final posterior.
+
+Documentos creados
+
+- docs/design-patterns.md.
+  - Documenta API Gateway, Repository, Event-Driven/Observer, Observability/Micrometer, Circuit Breaker/Retry y Feature Toggle.
+  - Circuit Breaker/Retry y Feature Toggle se documentan como trabajo de Juan, porque existen despues del merge desde master.
+  - Se corrige el estado real del feature toggle: el codigo contiene feature.diagnostic-header.enabled, no feature.qr-validation.enabled.
+- docs/change-management.md.
+  - Documenta GitHub Flow real, rama feature, PR hacia master, CI como quality gate, revision del companero, versionado semantico/tags, changelog/release notes, rollback tecnico y rollback operativo.
+
+Archivos modificados
+
+- docs/plan-proyecto-final.md.
+  - Se marco el estado real completado de JaCoCo, pruebas, OWASP ZAP, Alertmanager, metricas de negocio y documentacion de Tomas.
+  - Se conservo el trabajo de Juan como Juan: Circuit Breaker, Retry, Feature Toggle, Secrets, RBAC, TLS, pipeline y evidencias de seguridad.
+- ../Bitacora-Tomas-Sprint-0-1-2.md.
+  - Se agrego bloque de cierre de documentacion Sprint 2.
+- evidence/sprint2/tomas-documentation-sprint2.txt.
+  - Este archivo.
+
+Estado real despues del merge
+
+- No hubo conflictos de merge.
+- Los archivos de Juan ya estaban en origin/master y se mantuvieron como trabajo de Juan.
+- Los archivos locales de Tomas permanecen sin revertirse.
+- La documentacion nueva se limita al alcance de Tomas y a describir dependencias de Juan cuando existen en master.
+
+Validaciones realizadas para este bloque
+
+- git status --short --branch.
+- Test-Path docs/design-patterns.md.
+- Test-Path docs/change-management.md.
+- Test-Path evidence/sprint2/tomas-documentation-sprint2.txt.
+- rg para verificar rutas y nombres importantes en docs/evidence.
+- python -m json.tool observability/dashboards/circleguard-sprint2-business-dashboard.json.
+- kubectl apply --dry-run=client -f observability/alerts/circleguard-pod-alerts.yaml.
+- kubectl apply --dry-run=client -f observability/dashboards/circleguard-sprint2-business-dashboard-configmap.yaml.
+- kubectl apply --dry-run=client recursivo sobre k8s/dev, k8s/stage y k8s/prod.
+- ./gradlew.bat test --console=plain.
+- ./gradlew.bat jacocoSprint2Coverage --console=plain.
+
+Resultados de validacion
+
+- Los Markdown y la evidencia existen.
+- Las rutas y nombres clave aparecen en docs/evidence.
+- El JSON del dashboard Sprint 2 es valido.
+- PrometheusRule y ConfigMap de Grafana pasan dry-run.
+- Deployments, services, RBAC y secrets bajo k8s/dev, k8s/stage y k8s/prod pasan dry-run.
+- `k8s/dev/tls/gateway-ingress.yaml` pasa dry-run.
+- `k8s/dev/tls/cluster-issuer.yaml` y `k8s/dev/tls/gateway-certificate.yaml` requieren CRDs de cert-manager (`ClusterIssuer` y `Certificate`) instalados en el cluster actual; el dry-run reporto `no matches for kind`.
+- ./gradlew.bat test --console=plain: BUILD SUCCESSFUL.
+- ./gradlew.bat jacocoSprint2Coverage --console=plain: BUILD SUCCESSFUL.
+
+Decision sobre suites pesadas
+
+- Aunque este bloque nuevo fue documental, el merge fast-forward incorporo codigo y YAML desde origin/master.
+- Por eso se repitieron las validaciones pesadas de Gradle y dry-run de Kubernetes.
+
+Pendiente para PR final
+
+- Revisar diff final.
+- Crear commits convencionales por bloque.
+- Push de feat/sprint2-tomas-quality-observability.
+- Abrir PR hacia master con resumen, evidencia, validaciones y riesgos.
