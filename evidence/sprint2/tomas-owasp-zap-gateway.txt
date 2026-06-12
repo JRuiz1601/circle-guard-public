@@ -1,0 +1,96 @@
+Sprint 2 - Tomas - OWASP ZAP Gateway
+Fecha: 2026-06-10
+
+Objetivo
+
+- Cumplir el punto 4 de PlanSprint2.md: ejecutar OWASP ZAP en GitHub Actions contra el gateway y publicar un reporte como artifact.
+- Mantener el alcance dentro del track de Tomas: calidad, seguridad dinamica y evidencia.
+- No modificar responsabilidades de Juan: Terraform multiambiente, Secrets, RBAC, TLS, Circuit Breaker, Retry, Feature Toggle, approvals o CI/CD multiambiente.
+
+Fuentes verificadas
+
+- PlanSprint2.md, punto 4 OWASP ZAP.
+- EnunciadoProyecto.md: requisito de pruebas de seguridad con OWASP ZAP o similar.
+- docs/plan-proyecto-final.md:
+  - OWASP ZAP en GHA pipeline.
+  - OWASP ZAP apuntando al gateway.
+  - DoD Sprint 2: ZAP corre en pipeline y genera reporte sin criticos no documentados.
+- .github/workflows/quality.yml: existian jobs JaCoCo, SonarCloud y Trivy, pero no ZAP.
+- k8s/dev/circleguard-gateway-service:
+  - gateway escucha en 8080 cuando se define SERVER_PORT.
+  - healthcheck disponible en /actuator/health.
+  - depende de Redis por SPRING_DATA_REDIS_HOST.
+- docker-compose.dev.yml: levanta middleware, pero no levanta circleguard-gateway-service.
+
+Diseno elegido
+
+- Se agrego el job `OWASP ZAP Gateway Scan` a `.github/workflows/quality.yml`.
+- El job usa un entorno efimero de GitHub Actions:
+  - Redis 7.2 como service container.
+  - gateway iniciado desde `:services:circleguard-gateway-service:bootJar`.
+  - `SERVER_PORT=8080`.
+  - `SPRING_DATA_REDIS_HOST=127.0.0.1`.
+- El target ZAP es `http://127.0.0.1:8080`.
+- Se usa `zaproxy/action-full-scan@v0.13.0`.
+- La action oficial ejecuta ZAP con Docker y red host, por lo que el target local del runner es accesible desde el contenedor.
+
+Justificacion de no usar docker-compose.dev.yml
+
+- `docker-compose.dev.yml` solo contiene PostgreSQL, Neo4j, Kafka, Redis y OpenLDAP.
+- No expone gateway.
+- Para este punto, el gateway solo necesita Redis para que sus endpoints y healthcheck arranquen de forma reproducible.
+- Levantar todo el stack o cambiar compose agregaria superficie innecesaria y podria invadir trabajo de infraestructura no requerido para Tomas.
+
+Justificacion de no usar Kind en este bloque
+
+- PlanSprint2.md permite gateway expuesto por un entorno efimero o por docker compose/Kind si existe soporte suficiente.
+- El entorno efimero de GHA con bootJar + Redis es suficiente para DAST del gateway y evita depender de imagenes locales, registros o configuracion Kubernetes de otros tracks.
+- No se modifica Terraform, RBAC, TLS, Secrets ni aprobaciones.
+
+Politica de fallos y hallazgos
+
+- `fail_action: true`.
+- No se usa `continue-on-error`.
+- No se agrego archivo de reglas para ignorar alertas.
+- Por tanto, los hallazgos no quedan ocultos por configuracion de este job.
+- Si ZAP detecta alertas que produzcan exit code de fallo, el job debe fallar y el reporte queda como artifact para revision.
+
+Artifacts esperados
+
+- `zap-gateway-report`: artifact generado por `zaproxy/action-full-scan`.
+- `zap-gateway-runtime-log`: log de arranque del gateway para diagnostico del entorno efimero.
+
+Validacion esperada en GitHub Actions
+
+1. El job construye el gateway con:
+   `./gradlew :services:circleguard-gateway-service:bootJar -x test --no-daemon --console=plain`
+2. El job arranca el gateway en `127.0.0.1:8080`.
+3. El job espera `http://127.0.0.1:8080/actuator/health`.
+4. ZAP ejecuta full scan contra `http://127.0.0.1:8080`.
+5. El workflow publica `zap-gateway-report`.
+6. El Step Summary indica target, runtime, artifact y politica de fallos.
+
+Validacion local realizada para este bloque
+
+- `docker run --rm -v "${PWD}:/repo" -w /repo rhysd/actionlint:latest .github/workflows/quality.yml`
+  - Resultado: sin errores ni warnings.
+- `./gradlew.bat :services:circleguard-gateway-service:bootJar -x test --no-daemon --console=plain`
+  - Resultado: `BUILD SUCCESSFUL`.
+- Prueba efimera local:
+  - Redis 7.2 en contenedor temporal.
+  - gateway iniciado desde `circleguard-gateway-service-1.0.0-SNAPSHOT.jar`.
+  - variables: `SERVER_PORT=8080`, `SPRING_DATA_REDIS_HOST=127.0.0.1`, `SPRING_DATA_REDIS_PORT=6379`.
+  - healthcheck: `http://127.0.0.1:8080/actuator/health`.
+  - Resultado: `Gateway health: UP`.
+- La ejecucion real de `zaproxy/action-full-scan` queda para GitHub Actions, porque es una GitHub Action que publica artifact dentro del run.
+
+Riesgos documentados
+
+- OWASP ZAP Full Scan realiza pruebas activas. En este diseno el target es solo el gateway efimero local del runner, no un ambiente compartido ni productivo.
+- Si el gateway falla al arrancar, el artifact `zap-gateway-runtime-log` permite revisar la causa.
+- Si aparecen hallazgos criticos/altos, deben atenderse o documentarse antes de cerrar el Sprint 2.
+
+Estado
+
+- Punto 4 de PlanSprint2.md implementado a nivel de pipeline y evidencia.
+- Pendiente operativo: confirmar el artifact `zap-gateway-report` en el siguiente run de GitHub Actions.

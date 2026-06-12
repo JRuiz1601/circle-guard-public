@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.context.annotation.Import;
 import com.circleguard.identity.config.SecurityConfig;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @WebMvcTest(IdentityVaultController.class)
 @Import(SecurityConfig.class)
@@ -83,5 +84,40 @@ class IdentityVaultControllerTest {
                 .andExpect(jsonPath("$.detail").value("Identity not found"));
 
         verify(kafkaTemplate, timeout(3000)).send(eq("audit.identity.accessed"), any());
+    }
+
+    @Test
+    void mapIdentity_ReturnsAnonymousId() throws Exception {
+        UUID anonymousId = UUID.randomUUID();
+        when(vaultService.getOrCreateAnonymousId("student@example.edu")).thenReturn(anonymousId);
+
+        mockMvc.perform(post("/api/v1/identities/map")
+                        .contentType("application/json")
+                        .content("{\"realIdentity\":\"student@example.edu\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.anonymousId").value(anonymousId.toString()));
+
+        verify(vaultService).getOrCreateAnonymousId("student@example.edu");
+    }
+
+    @Test
+    void registerVisitor_ComposesVisitorIdentityAndReturnsAnonymousId() throws Exception {
+        UUID anonymousId = UUID.randomUUID();
+        when(vaultService.getOrCreateAnonymousId("VISITOR|visitor@example.edu|Visitor One|meeting"))
+                .thenReturn(anonymousId);
+
+        mockMvc.perform(post("/api/v1/identities/visitor")
+                        .contentType("application/json")
+                        .content("""
+                                {
+                                  "name": "Visitor One",
+                                  "email": "visitor@example.edu",
+                                  "reason_for_visit": "meeting"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.anonymousId").value(anonymousId.toString()));
+
+        verify(vaultService).getOrCreateAnonymousId("VISITOR|visitor@example.edu|Visitor One|meeting");
     }
 }

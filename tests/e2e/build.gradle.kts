@@ -14,4 +14,14 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    onlyIf {
+        project.hasProperty("runE2E") ||
+            System.getenv("CIRCLEGUARD_RUN_E2E").equals("true", ignoreCase = true)
+    }
+    doFirst {
+        logger.lifecycle(
+            "Running CircleGuard E2E tests against live services. " +
+                "Override bases with CIRCLEGUARD_E2E_*_BASE when needed.",
+        )
+    }
 }

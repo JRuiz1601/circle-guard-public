@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -15,6 +17,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @Testcontainers
@@ -40,8 +43,15 @@ public class HealthStatusReevaluationTest {
     @MockBean
     private KafkaTemplate<String, Object> kafkaTemplate;
 
+    @MockBean
+    private StringRedisTemplate redisTemplate;
+
+    @MockBean
+    private ValueOperations<String, String> valueOperations;
+
     @BeforeEach
     void setup() {
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         neo4jClient.query("MATCH (n) DETACH DELETE n").run();
     }
 

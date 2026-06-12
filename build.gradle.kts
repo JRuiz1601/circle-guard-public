@@ -1,3 +1,6 @@
+import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
+import org.gradle.testing.jacoco.tasks.JacocoReport
+
 plugins {
     id("org.springframework.boot") version "3.2.4" apply false
     id("io.spring.dependency-management") version "1.1.4" apply false
@@ -15,9 +18,17 @@ allprojects {
     }
 }
 
+val sprint2CoverageProjects =
+    setOf(
+        "circleguard-auth-service",
+        "circleguard-identity-service",
+        "circleguard-gateway-service",
+    )
+
 subprojects {
     apply(plugin = "java")
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "jacoco")
     extensions.configure<JavaPluginExtension> {
         toolchain {
             languageVersion.set(JavaLanguageVersion.of(21))
@@ -76,5 +87,84 @@ subprojects {
 
     tasks.withType<Test> {
         useJUnitPlatform()
+        if (project.path != ":tests:e2e") {
+            exclude("**/e2e/**")
+        }
+        if (!project.hasProperty("runPerformance")) {
+            exclude("**/performance/**")
+        }
+        finalizedBy(tasks.named("jacocoTestReport"))
     }
+
+    extensions.configure<JacocoPluginExtension> {
+        toolVersion = "0.8.12"
+    }
+
+    val jacocoExcludes =
+        listOf(
+            "**/*Application.class",
+            "**/*Config.class",
+            "**/*Configuration.class",
+            "**/*Properties.class",
+            "**/model/**",
+            "**/dto/**",
+            "**/event/**",
+        )
+
+    tasks.named<JacocoReport>("jacocoTestReport") {
+        dependsOn(tasks.named("test"))
+
+        reports {
+            xml.required.set(true)
+            html.required.set(true)
+            csv.required.set(false)
+        }
+
+        classDirectories.setFrom(
+            files(
+                classDirectories.files.map {
+                    fileTree(it) {
+                        exclude(jacocoExcludes)
+                    }
+                },
+            ),
+        )
+    }
+
+    if (name in sprint2CoverageProjects) {
+        tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
+            dependsOn(tasks.named("jacocoTestReport"))
+
+            violationRules {
+                rule {
+                    limit {
+                        counter = "LINE"
+                        value = "COVEREDRATIO"
+                        minimum = "0.70".toBigDecimal()
+                    }
+                }
+            }
+
+            classDirectories.setFrom(
+                files(
+                    classDirectories.files.map {
+                        fileTree(it) {
+                            exclude(jacocoExcludes)
+                        }
+                    },
+                ),
+            )
+        }
+    }
+}
+
+tasks.register("jacocoSprint2Coverage") {
+    group = "verification"
+    description = "Runs JaCoCo reports and enforces 70% line coverage for auth, identity and gateway."
+
+    dependsOn(
+        ":services:circleguard-auth-service:jacocoTestCoverageVerification",
+        ":services:circleguard-identity-service:jacocoTestCoverageVerification",
+        ":services:circleguard-gateway-service:jacocoTestCoverageVerification",
+    )
 }
