@@ -1,0 +1,168 @@
+Sprint 2 - Tomas - Locust Performance and Stress
+Fecha: 2026-06-11
+
+Objetivo
+
+- Cumplir el punto 5 de PlanSprint2.md.
+- Revisar y completar `tests/performance/locustfile.py`.
+- Incluir escenarios de login, formularios, archivos y dashboard.
+- Ejecutar perfiles de carga y estres con resultados documentados.
+- Mantener el alcance dentro del track de Tomas.
+
+Fuentes verificadas
+
+- PlanSprint2.md, punto 5 Locust y resultados de pruebas.
+- EnunciadoProyecto.md: pruebas de rendimiento y estres con Locust.
+- docs/plan-proyecto-final.md: Locust con escenarios de carga + estres documentados.
+- Bitacora-Tomas-Sprint-0-1-2.md: Sprint 2 Tomas.
+- Estado real del cluster local `circleguard-dev`.
+
+Archivos actualizados
+
+- `tests/performance/locustfile.py`.
+- `tests/performance/README.md`.
+- `evidence/sprint2/tomas-locust-performance.txt`.
+- `Bitacora-Tomas-Sprint-0-1-2.md`.
+
+Escenarios implementados
+
+- `AuthLoadUser`:
+  - `POST /api/v1/auth/login`.
+  - `GET /api/v1/auth/qr/generate`.
+- `FormLoadUser`:
+  - `GET /api/v1/questionnaires`.
+  - `POST /api/v1/questionnaires`.
+  - `POST /api/v1/surveys`.
+- `FileStressUser`:
+  - `POST /api/v1/files/upload` con multipart.
+- `DashboardReadUser`:
+  - `GET /api/v1/analytics/health-board`.
+  - `GET /api/v1/analytics/summary`.
+  - `GET /api/v1/analytics/time-series?period=hourly&limit=24`.
+
+Configuracion
+
+- Bases configurables por variables de entorno:
+  - `CIRCLEGUARD_AUTH_BASE`.
+  - `CIRCLEGUARD_FORM_BASE`.
+  - `CIRCLEGUARD_FILE_BASE`.
+  - `CIRCLEGUARD_DASHBOARD_BASE`.
+- Credenciales configurables:
+  - `CIRCLEGUARD_PERF_USERNAME`.
+  - `CIRCLEGUARD_PERF_PASSWORD`.
+- Defaults locales:
+  - auth: `http://localhost:8081`.
+  - form: `http://localhost:8083`.
+  - file: `http://localhost:8084`.
+  - dashboard: `http://localhost:8085`.
+
+Preparacion local
+
+- Cluster usado: Docker Desktop Kubernetes, namespace `circleguard-dev`.
+- Estado previo:
+  - 8 servicios y middleware relevantes en `Running`.
+- Port-forwards temporales:
+  - `svc/circleguard-auth-service 8081:80`.
+  - `svc/circleguard-form-service 8083:80`.
+  - `svc/circleguard-file-service 8084:80`.
+  - `svc/circleguard-dashboard-service 8085:80`.
+
+Validaciones de script
+
+- `python -m py_compile tests/performance/locustfile.py`: OK.
+- `python -m locust -f tests/performance/locustfile.py --list`: OK.
+- Usuarios Locust detectados:
+  - `AuthLoadUser`.
+  - `FormLoadUser`.
+  - `FileStressUser`.
+  - `DashboardReadUser`.
+
+Perfil de carga ejecutado
+
+Comando:
+
+```powershell
+python -m locust -f tests/performance/locustfile.py --headless --users 8 --spawn-rate 2 --run-time 45s --csv evidence/sprint2/locust-load --html evidence/sprint2/locust-load-report.html --only-summary
+```
+
+Resultado:
+
+- Exit code: 0.
+- Requests totales en CSV: 197.
+- Fallos: 0.
+- Failure rate: 0.00%.
+- RPS agregado: 4.47 req/s.
+- Latencia promedio agregada: 216.87 ms.
+- P95 agregado: 1100 ms.
+- Max agregado: 4337 ms.
+- Excepciones CSV: ninguna.
+
+Observaciones de carga:
+
+- Todos los endpoints quedaron sin fallos.
+- Lecturas de dashboard y form estuvieron por debajo del objetivo local de P95 2000 ms.
+- `form: survey submit` tuvo un outlier de 4337 ms, sin errores.
+
+Perfil de estres ejecutado
+
+Comando:
+
+```powershell
+python -m locust -f tests/performance/locustfile.py --headless --users 20 --spawn-rate 5 --run-time 45s --csv evidence/sprint2/locust-stress --html evidence/sprint2/locust-stress-report.html --only-summary
+```
+
+Resultado:
+
+- Exit code: 0.
+- Requests totales en CSV: 425.
+- Fallos: 0.
+- Failure rate: 0.00%.
+- RPS agregado: 9.59 req/s.
+- Latencia promedio agregada: 314.03 ms.
+- P95 agregado: 2300 ms.
+- Max agregado: 7501 ms.
+- Excepciones CSV: ninguna.
+
+Observaciones de estres:
+
+- El stack siguio alcanzable durante toda la corrida.
+- No hubo fallos ni excepciones en Locust.
+- La latencia alta se concentro en `auth: login`:
+  - promedio: 2246 ms.
+  - P95: 4900 ms.
+  - max: 7501 ms.
+- Las lecturas de dashboard mantuvieron P95 bajo:
+  - `dashboard: health board`: 18 ms.
+  - `dashboard: summary`: 15 ms.
+  - `dashboard: time series`: 45 ms.
+- `file: upload` mantuvo P95 de 57 ms.
+- `form: questionnaire list` mantuvo P95 de 390 ms.
+
+Artifacts generados
+
+- `evidence/sprint2/locust-load_stats.csv`.
+- `evidence/sprint2/locust-load_failures.csv`.
+- `evidence/sprint2/locust-load_exceptions.csv`.
+- `evidence/sprint2/locust-load_stats_history.csv`.
+- `evidence/sprint2/locust-load-report.html`.
+- `evidence/sprint2/locust-stress_stats.csv`.
+- `evidence/sprint2/locust-stress_failures.csv`.
+- `evidence/sprint2/locust-stress_exceptions.csv`.
+- `evidence/sprint2/locust-stress_stats_history.csv`.
+- `evidence/sprint2/locust-stress-report.html`.
+
+Criterios de aceptacion
+
+- Locust ejecuta escenarios de carga y estres: cumplido.
+- Flujos de login, formularios, archivos y dashboard cubiertos: cumplido.
+- Resultados documentados en evidence/sprint2: cumplido.
+- Fallos ocultos: no aplica; las corridas terminaron con exit code 0 y 0 fallos.
+
+Riesgos y proximos pasos
+
+- Bajo estres, `auth: login` muestra latencia alta. Debe considerarse un indicador de capacidad para revisar despues de cerrar el DoD funcional.
+- No se modifica autenticacion, identity, base de datos, infraestructura ni resiliencia desde este bloque porque esas fronteras pertenecen a otros puntos o al track de Juan.
+
+Estado
+
+- Punto 5 de PlanSprint2.md cerrado para el track Tomas.
