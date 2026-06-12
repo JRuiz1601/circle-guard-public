@@ -2,6 +2,7 @@ package com.circleguard.auth.controller;
 
 import com.circleguard.auth.service.JwtTokenService;
 import com.circleguard.auth.client.IdentityClient;
+import io.micrometer.core.instrument.Metrics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
@@ -38,6 +39,7 @@ public class LoginController {
 
             // 3. Issue Token
             String token = jwtService.generateToken(anonymousId, auth);
+            Metrics.counter("circleguard.auth.logins", "outcome", "success").increment();
 
             return ResponseEntity.ok(Map.of(
                     "token", token,
@@ -45,9 +47,11 @@ public class LoginController {
                     "anonymousId", anonymousId.toString()
             ));
         } catch (org.springframework.security.core.AuthenticationException e) {
+            Metrics.counter("circleguard.auth.logins", "outcome", "failure").increment();
             System.err.println("Authentication failed for " + username + ": " + e.getMessage());
             return ResponseEntity.status(401).body(Map.of("message", "Invalid username or password"));
         } catch (Exception e) {
+            Metrics.counter("circleguard.auth.logins", "outcome", "error").increment();
             System.err.println("Unexpected error during login for " + username + ":");
             e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("message", "Internal server error: " + e.getMessage()));

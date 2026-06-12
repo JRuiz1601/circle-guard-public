@@ -2,6 +2,7 @@ package com.circleguard.form.controller;
 
 import com.circleguard.form.model.Questionnaire;
 import com.circleguard.form.service.QuestionnaireService;
+import io.micrometer.core.instrument.Metrics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,9 @@ public class QuestionnaireController {
 
     @PostMapping
     public ResponseEntity<Questionnaire> create(@RequestBody Questionnaire questionnaire) {
-        return ResponseEntity.ok(service.saveQuestionnaire(questionnaire));
+        Questionnaire saved = service.saveQuestionnaire(questionnaire);
+        Metrics.counter("circleguard.form.questionnaires.created").increment();
+        return ResponseEntity.ok(saved);
     }
 
     @PostMapping("/{id}/activate")

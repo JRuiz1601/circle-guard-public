@@ -1,0 +1,53 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: circleguard-pod-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: circleguard.pods
+      rules:
+        - alert: CircleGuardPodNotReady
+          expr: |
+            (
+              kube_pod_status_phase{
+                namespace="circleguard-dev",
+                phase="Running",
+                pod=~"circleguard-.*"
+              } == 1
+            )
+            and on (namespace, pod)
+            (
+              kube_pod_status_ready{
+                namespace="circleguard-dev",
+                condition="true",
+                pod=~"circleguard-.*"
+              } == 0
+            )
+          for: 2m
+          labels:
+            severity: warning
+            team: tomas
+            sprint: "2"
+          annotations:
+            summary: "CircleGuard pod is not ready"
+            description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has been not ready for more than 2 minutes."
+        - alert: CircleGuardPodDown
+          expr: |
+            sum by (namespace, pod) (
+              kube_pod_status_phase{
+                namespace="circleguard-dev",
+                phase=~"Failed|Unknown",
+                pod=~"circleguard-.*"
+              } == 1
+            ) > 0
+          for: 2m
+          labels:
+            severity: critical
+            team: tomas
+            sprint: "2"
+          annotations:
+            summary: "CircleGuard pod is down"
+            description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has been Failed or Unknown for more than 2 minutes."

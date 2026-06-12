@@ -1,0 +1,212 @@
+Sprint 2 - Tomas - Alertmanager y metricas de negocio
+Fecha: 2026-06-11
+
+Objetivo
+
+- Cumplir el punto 6 de PlanSprint2.md.
+- Crear regla Prometheus/Alertmanager para pod CircleGuard down/no ready por mas de 2 minutos.
+- Agregar contadores Micrometer de negocio minimos.
+- Publicar dashboard Grafana final con paneles de metricas de negocio.
+- Validar en Docker Desktop Kubernetes local.
+
+Fuentes verificadas
+
+- PlanSprint2.md, punto 6 Alertmanager y metricas de negocio.
+- EnunciadoProyecto.md: Prometheus/Grafana y metricas de negocio.
+- docs/plan-proyecto-final.md: Alertmanager, Micrometer y dashboard final.
+- Bitacora-Tomas-Sprint-0-1-2.md.
+- Estado real del cluster local `circleguard-dev` y namespace `monitoring`.
+
+Archivos actualizados
+
+- `services/circleguard-auth-service/src/main/java/com/circleguard/auth/controller/LoginController.java`.
+- `services/circleguard-form-service/src/main/java/com/circleguard/form/controller/QuestionnaireController.java`.
+- `services/circleguard-form-service/src/main/java/com/circleguard/form/controller/HealthSurveyController.java`.
+- `services/circleguard-gateway-service/src/main/java/com/circleguard/gateway/controller/GateController.java`.
+- `observability/alerts/circleguard-pod-alerts.yaml`.
+- `observability/dashboards/circleguard-sprint2-business-dashboard.json`.
+- `observability/dashboards/circleguard-sprint2-business-dashboard-configmap.yaml`.
+- `evidence/sprint2/tomas-alertmanager-business-metrics.txt`.
+- `Bitacora-Tomas-Sprint-0-1-2.md`.
+
+Metricas implementadas
+
+- Auth:
+  - Micrometer counter: `circleguard.auth.logins`.
+  - Prometheus: `circleguard_auth_logins_total`.
+  - Labels:
+    - `outcome="success"`.
+    - `outcome="failure"`.
+    - `outcome="error"`.
+- Form:
+  - Micrometer counter: `circleguard.form.questionnaires.created`.
+  - Prometheus: `circleguard_form_questionnaires_created_total`.
+  - Micrometer counter: `circleguard.form.surveys.submitted`.
+  - Prometheus: `circleguard_form_surveys_submitted_total`.
+- Gateway:
+  - Micrometer counter: `circleguard.gateway.qr.validations`.
+  - Prometheus: `circleguard_gateway_qr_validations_total`.
+  - Labels:
+    - `result="allowed"`.
+    - `result="denied"`.
+    - `result="invalid"`.
+
+Reglas Alertmanager/Prometheus
+
+- Manifest: `observability/alerts/circleguard-pod-alerts.yaml`.
+- Tipo: `PrometheusRule`.
+- Namespace: `monitoring`.
+- Label: `release: monitoring`.
+- Grupo: `circleguard.pods`.
+- Alertas:
+  - `CircleGuardPodNotReady`.
+    - Detecta pod `circleguard-*` en `circleguard-dev` en fase Running pero no Ready.
+    - `for: 2m`.
+    - `severity: warning`.
+  - `CircleGuardPodDown`.
+    - Detecta pod `circleguard-*` en fase Failed o Unknown.
+    - `for: 2m`.
+    - `severity: critical`.
+
+Dashboard Grafana
+
+- JSON: `observability/dashboards/circleguard-sprint2-business-dashboard.json`.
+- ConfigMap: `observability/dashboards/circleguard-sprint2-business-dashboard-configmap.yaml`.
+- Nombre en Grafana: `CircleGuard Sprint 2 Business Metrics`.
+- UID: `circleguard-sprint2-business`.
+- Paneles:
+  - Logins por minuto por outcome.
+  - Actividad de formularios por minuto.
+  - Validaciones QR por minuto por resultado.
+  - Fallos de login por minuto.
+
+Validaciones locales
+
+Comandos:
+
+```powershell
+python -m json.tool observability\dashboards\circleguard-sprint2-business-dashboard.json
+kubectl apply --dry-run=client -f observability\alerts\circleguard-pod-alerts.yaml
+kubectl apply --dry-run=client -f observability\dashboards\circleguard-sprint2-business-dashboard-configmap.yaml
+.\gradlew.bat :services:circleguard-auth-service:test :services:circleguard-form-service:test :services:circleguard-gateway-service:test --console=plain
+```
+
+Resultados:
+
+- JSON Grafana valido.
+- Dry-run de `PrometheusRule`: OK.
+- Dry-run de ConfigMap Grafana: OK.
+- Tests auth/form/gateway: `BUILD SUCCESSFUL`.
+
+Aplicacion local
+
+Comandos principales:
+
+```powershell
+kubectl apply -f observability\alerts\circleguard-pod-alerts.yaml
+kubectl apply -f observability\dashboards\circleguard-sprint2-business-dashboard-configmap.yaml
+docker build -t circleguard-auth-service:local -f services/circleguard-auth-service/Dockerfile .
+docker build -t circleguard-form-service:local -f services/circleguard-form-service/Dockerfile .
+docker build -t circleguard-gateway-service:local -f services/circleguard-gateway-service/Dockerfile .
+kubectl rollout restart deployment/circleguard-auth-service deployment/circleguard-form-service deployment/circleguard-gateway-service -n circleguard-dev
+kubectl rollout status deployment/circleguard-auth-service -n circleguard-dev --timeout=240s
+kubectl rollout status deployment/circleguard-form-service -n circleguard-dev --timeout=240s
+kubectl rollout status deployment/circleguard-gateway-service -n circleguard-dev --timeout=240s
+```
+
+Resultados:
+
+- `PrometheusRule` aplicado.
+- Dashboard ConfigMap aplicado.
+- Imagenes locales auth/form/gateway reconstruidas.
+- Deployments auth/form/gateway reiniciados y `successfully rolled out`.
+- Prometheus quedo `2/2 Running` despues de reciclar el pod por un estado local atascado con `bind: address already in use`.
+
+Evidencia de metricas
+
+Trafico generado:
+
+- Login exitoso.
+- Login fallido esperado.
+- Creacion de cuestionario.
+- Envio de encuesta.
+- Validaciones QR en gateway con token invalido.
+
+Metricas directas en `/actuator/prometheus`:
+
+```text
+circleguard_auth_logins_total{outcome="failure",} 1.0
+circleguard_auth_logins_total{outcome="success",} 2.0
+circleguard_form_surveys_submitted_total 1.0
+circleguard_form_questionnaires_created_total 1.0
+circleguard_gateway_qr_validations_total{result="invalid",} 2.0
+```
+
+Consultas Prometheus:
+
+```text
+GET /api/v1/query?query=circleguard_auth_logins_total
+Resultado: success, series success=2 y failure=1 para circleguard-auth-service.
+
+GET /api/v1/query?query=circleguard_form_surveys_submitted_total
+Resultado: success, serie value=1 para circleguard-form-service.
+
+GET /api/v1/query?query=circleguard_gateway_qr_validations_total
+Resultado: success, serie result=invalid value=2 para circleguard-gateway-service.
+```
+
+Evidencia de alerta
+
+- Se creo un pod temporal `circleguard-alert-test` en `circleguard-dev` con readinessProbe fallida.
+- Primero se valido que la expresion de regla capturara el pod:
+
+```text
+query: kube_pod_status_phase Running AND kube_pod_status_ready false
+resultado: pod="circleguard-alert-test", value=1
+```
+
+- Despues de esperar mas de 2 minutos, `ALERTS` devolvio:
+
+```text
+alertname="CircleGuardPodNotReady"
+alertstate="firing"
+namespace="circleguard-dev"
+pod="circleguard-alert-test"
+severity="warning"
+sprint="2"
+team="tomas"
+value=1
+```
+
+- El pod temporal fue eliminado al finalizar la prueba.
+
+Evidencia Grafana
+
+Consulta API:
+
+```text
+GET /api/search?query=CircleGuard%20Sprint%202%20Business%20Metrics
+```
+
+Resultado:
+
+```text
+uid="circleguard-sprint2-business"
+title="CircleGuard Sprint 2 Business Metrics"
+url="/d/circleguard-sprint2-business/circleguard-sprint-2-business-metrics"
+tags=["business","circleguard","sprint2"]
+```
+
+Incidencias
+
+- Tras aplicar la regla, Prometheus estaba `1/2 CrashLoopBackOff`.
+- Logs mostraron `listen tcp 0.0.0.0:9090: bind: address already in use`, no error de regla.
+- Se reciclo el pod de Prometheus con delete forzado y volvio a `2/2 Running`.
+- El operator marco la regla con `prometheus-operator-validated: "true"`.
+
+Estado
+
+- Punto 6 de PlanSprint2.md cerrado.
+- Alertmanager/PrometheusRule validado con alerta real en `firing`.
+- Metricas de negocio visibles en actuator y Prometheus.
+- Dashboard Grafana final visible por API.
