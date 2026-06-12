@@ -5,6 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -15,6 +18,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @Testcontainers
@@ -34,8 +38,14 @@ public class PromotionPerformanceTest {
     @Autowired
     private HealthStatusService healthStatusService;
     
-    @org.springframework.boot.test.mock.mockito.MockBean
+    @MockBean
     private org.springframework.kafka.core.KafkaTemplate<String, Object> kafkaTemplate;
+
+    @MockBean
+    private StringRedisTemplate redisTemplate;
+
+    @MockBean
+    private ValueOperations<String, String> valueOperations;
 
     @Autowired
     private Neo4jClient neo4jClient;
@@ -44,6 +54,7 @@ public class PromotionPerformanceTest {
 
     @BeforeEach
     void setupBenchmarkData() {
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         // Clear graph
         neo4jClient.query("MATCH (n) DETACH DELETE n").run();
 

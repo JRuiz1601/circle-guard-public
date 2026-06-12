@@ -1,0 +1,86 @@
+# Sprint 2 - Tomas - JaCoCo coverage
+
+Fecha: 2026-06-10
+Rama: feat/sprint2-tomas-quality-observability
+
+Objetivo:
+
+- Agregar JaCoCo para todos los subproyectos Java/Kotlin.
+- Generar reportes XML y HTML por subproyecto.
+- Crear una puerta de cobertura Sprint 2 para auth, identity y gateway con umbral minimo de 70% de lineas cubiertas.
+- Publicar los reportes JaCoCo como artifact desde GitHub Actions.
+
+Archivos configurados:
+
+- build.gradle.kts
+- .github/workflows/quality.yml
+
+Configuracion aplicada:
+
+- Plugin `jacoco` aplicado a todos los subproyectos.
+- Version JaCoCo: 0.8.12.
+- Reportes por subproyecto:
+  - XML: `build/reports/jacoco/test/jacocoTestReport.xml`
+  - HTML: `build/reports/jacoco/test/html/index.html`
+- Task raiz agregado:
+  - `./gradlew jacocoSprint2Coverage`
+- Puerta de cobertura:
+  - `circleguard-auth-service`: >= 70% line coverage.
+  - `circleguard-identity-service`: >= 70% line coverage.
+  - `circleguard-gateway-service`: >= 70% line coverage.
+- Tests E2E embebidos bajo `src/test/**/e2e/**` se excluyen del task unitario `test` en servicios.
+  El modulo dedicado `tests:e2e` se mantiene separado para validacion E2E.
+
+Validacion local:
+
+```powershell
+.\gradlew.bat :services:circleguard-auth-service:jacocoTestReport :services:circleguard-identity-service:jacocoTestReport :services:circleguard-gateway-service:jacocoTestReport --console=plain
+```
+
+Resultado:
+
+- BUILD SUCCESSFUL.
+- Reportes XML/HTML generados para auth, identity y gateway.
+
+Cobertura observada:
+
+| Servicio | Line coverage | Estado frente a 70% |
+|---|---:|---|
+| circleguard-auth-service | 78.51% | Pasa |
+| circleguard-identity-service | 82.40% | Pasa |
+| circleguard-gateway-service | 88.89% | Pasa |
+
+Comando de puerta:
+
+```powershell
+.\gradlew.bat jacocoSprint2Coverage --continue --console=plain
+```
+
+Resultado final:
+
+- La puerta se ejecuta correctamente.
+- `circleguard-auth-service` pasa con 78.51%.
+- `circleguard-identity-service` pasa con 82.40%.
+- `circleguard-gateway-service` pasa con 88.89%.
+- `.\gradlew.bat jacocoSprint2Coverage --console=plain` finalizo con `BUILD SUCCESSFUL`.
+
+Problemas encontrados:
+
+- La primera corrida expiro por timeout de herramienta.
+- Una segunda corrida encontro un bloqueo temporal en `auth-service/build/test-results/test/binary/output.bin`, resuelto con `.\gradlew.bat --stop`.
+- `auth-service` tenia pruebas E2E antiguas dentro del arbol del servicio (`src/test/java/.../e2e`) que intentaban llamar servicios en `localhost` durante el task unitario `test`.
+
+Soluciones aplicadas:
+
+- Se paro el daemon de Gradle para liberar archivos bloqueados.
+- Se separo la ejecucion de E2E: los servicios excluyen `**/e2e/**` de `test`; el modulo `tests:e2e` queda como punto dedicado para E2E reales.
+
+Pruebas agregadas para cerrar la brecha:
+
+- `IdentityVaultServiceTest`: 5 unit tests nuevos.
+- `JwtAuthenticationFilterTest`: 5 unit tests nuevos.
+- `IdentityVaultControllerTest`: 2 escenarios MockMvc nuevos para map y visitor.
+
+Estado:
+
+- Punto JaCoCo Sprint 2 cerrado para auth, identity y gateway.

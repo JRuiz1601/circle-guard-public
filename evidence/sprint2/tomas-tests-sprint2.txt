@@ -1,0 +1,111 @@
+# Sprint 2 - Tomas - Pruebas unitarias, integracion y E2E
+
+Fecha: 2026-06-10
+Rama: feat/sprint2-tomas-quality-observability
+
+Objetivo:
+
+- Cerrar el punto 3 de `PlanSprint2.md`.
+- Auditar pruebas existentes antes de agregar nuevas.
+- Agregar al menos 5 unit tests nuevos priorizando auth, identity y gateway.
+- Confirmar al menos 5 integration tests existentes/ejecutables.
+- Confirmar al menos 5 E2E reales en `tests/e2e`.
+- Mantener `./gradlew test` determinista y compatible con CI.
+
+Pruebas nuevas agregadas:
+
+| Archivo | Tipo | Nuevos @Test |
+|---|---|---:|
+| `services/circleguard-identity-service/src/test/java/com/circleguard/identity/service/IdentityVaultServiceTest.java` | Unit | 5 |
+| `services/circleguard-identity-service/src/test/java/com/circleguard/identity/config/JwtAuthenticationFilterTest.java` | Unit | 5 |
+| `services/circleguard-identity-service/src/test/java/com/circleguard/identity/controller/IdentityVaultControllerTest.java` | MockMvc/controller | 2 |
+
+Cobertura de integration tests auditada:
+
+- `AuthPostgresIntegrationIT`: 3 tests.
+- `AuthIntegrationTests`: 2 tests.
+- `FormIntegrationMvcTest`: 5 tests.
+- `FormSurveyPostgresIntegrationIT`: 2 tests.
+- `FileUploadPostgresIntegrationIT`: 2 tests.
+- `DashboardAnalyticsPostgresIntegrationIT`: 2 tests.
+- `IdentityIntegrationTests`: 1 test.
+
+E2E auditado:
+
+- `tests/e2e/src/test/java/com/circleguard/e2e/CircleGuardE2ETest.java`.
+- 5 flujos reales:
+  - upload de archivo.
+  - crear/listar cuestionarios.
+  - login + lookup identity con JWT.
+  - lookup no autenticado negativo.
+  - dashboard health-board.
+
+Cambios de estabilidad CI:
+
+- `tests:e2e:test` queda opt-in con `-PrunE2E` o `CIRCLEGUARD_RUN_E2E=true`, porque requiere servicios vivos y port-forward.
+- Tests bajo `src/test/**/e2e/**` en servicios quedan fuera del task unitario `test`.
+- Tests bajo `src/test/**/performance/**` quedan opt-in con `-PrunPerformance`, porque son benchmarks dependientes de la maquina y no deben romper unit/integration CI.
+- `notification-service` tiene `src/test/resources/application.yml` para desactivar health mail y auto-start de Kafka listeners.
+- `promotion-service` tiene configuracion de test H2/Flyway off/Kafka listener off y secreto JWT de test.
+- Tests de promotion que validan Neo4j real mockean Redis cuando Redis no es el sujeto de la prueba.
+
+Validaciones ejecutadas:
+
+```powershell
+.\gradlew.bat :services:circleguard-auth-service:test :services:circleguard-identity-service:test :services:circleguard-gateway-service:test --console=plain
+.\gradlew.bat :services:circleguard-notification-service:test --console=plain
+.\gradlew.bat :services:circleguard-promotion-service:test --console=plain
+.\gradlew.bat test --console=plain
+.\gradlew.bat jacocoSprint2Coverage --console=plain
+```
+
+Resultados:
+
+- `auth`, `identity`, `gateway`: `BUILD SUCCESSFUL`.
+- `notification-service`: `BUILD SUCCESSFUL`.
+- `promotion-service`: `BUILD SUCCESSFUL`.
+- `./gradlew.bat test --console=plain`: `BUILD SUCCESSFUL`.
+- `./gradlew.bat jacocoSprint2Coverage --console=plain`: `BUILD SUCCESSFUL`.
+- Resumen XML local despues de las corridas: 40 suites XML, 98 tests, 0 failures, 0 errors, 0 skipped.
+
+Validacion E2E real:
+
+Precondicion:
+
+- Docker Desktop Kubernetes en contexto `docker-desktop`.
+- Namespace `circleguard-dev`.
+- Servicios auth, identity, form, file y dashboard en `1/1 Running`.
+
+Comando ejecutado:
+
+```powershell
+kubectl rollout restart deployment/circleguard-auth-service deployment/circleguard-identity-service deployment/circleguard-form-service deployment/circleguard-file-service deployment/circleguard-dashboard-service -n circleguard-dev
+kubectl rollout status deployment/circleguard-auth-service -n circleguard-dev --timeout=180s
+kubectl rollout status deployment/circleguard-identity-service -n circleguard-dev --timeout=180s
+kubectl rollout status deployment/circleguard-form-service -n circleguard-dev --timeout=180s
+kubectl rollout status deployment/circleguard-file-service -n circleguard-dev --timeout=180s
+kubectl rollout status deployment/circleguard-dashboard-service -n circleguard-dev --timeout=180s
+.\gradlew.bat :tests:e2e:test -PrunE2E --no-daemon --console=plain
+```
+
+Resultado E2E:
+
+- `BUILD SUCCESSFUL`.
+- 5 tests, 0 failures, 0 errors, 0 skipped.
+- Los port-forwards temporales usados:
+  - `circleguard-auth-service` 8081:80.
+  - `circleguard-identity-service` 8082:80.
+  - `circleguard-form-service` 8083:80.
+  - `circleguard-file-service` 8084:80.
+  - `circleguard-dashboard-service` 8085:80.
+
+Problemas encontrados:
+
+- La primera corrida E2E se colgo por estado degradado del entorno vivo: `form-service` tenia pool PostgreSQL bloqueado en health/DB.
+- Se limpiaron procesos `kubectl port-forward` y Java sobrantes.
+- Se reiniciaron los deployments E2E y se espero rollout exitoso.
+- La segunda corrida E2E paso correctamente.
+
+Estado:
+
+- Punto 3 de `PlanSprint2.md` cerrado.
